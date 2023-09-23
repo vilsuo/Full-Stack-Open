@@ -19,7 +19,14 @@ const Feedback = ({ actions }) => {
   )
 }
 
-const StatisticLine = ({ text, value }) => <p>{text} {value}</p>
+const StatisticLine = ({ text, value }) => {
+  return (
+    <tr>
+      <td>{text}</td>
+      <td>{value}</td>
+    </tr>
+  )
+}
 
 const Statistics = ({ statistics }) => {
   const good = statistics.good;
@@ -33,12 +40,25 @@ const Statistics = ({ statistics }) => {
     return (
       <>
         <h1>statistics</h1>
-        <StatisticLine text="good"    value={good}/>
-        <StatisticLine text="neutral" value={neutral}/>
-        <StatisticLine text="bad"     value={bad}/>
-        <p>all {n}</p>
-        <p>average {sum/n}</p>
-        <p>positive {100 * good / n} %</p>
+        <table>
+          <tbody>
+            <StatisticLine text="good"    value={good}/>
+            <StatisticLine text="neutral" value={neutral}/>
+            <StatisticLine text="bad"     value={bad}/>
+            <tr>
+              <td>all</td>
+              <td>{n}</td>
+            </tr>
+            <tr>
+              <td>average</td>
+              <td>{sum/n}</td>
+            </tr>
+            <tr>
+              <td>positive</td>
+              <td>{100 * good / n}</td>
+            </tr>
+          </tbody>
+        </table>
       </>
     )
   } else {
