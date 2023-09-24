@@ -67,8 +67,6 @@ const App = () => {
     setNewNUmber(event.target.value)
   }
 
-  console.log('1', persons)
-
   return (
     <div>
       <h2>Phonebook</h2>
