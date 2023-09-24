@@ -1,62 +1,113 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import axios from "axios"
+import personsService from "./services/persons"
+import Input from './components/Input'
 
-const Input = ({text, value, onChange}) => {
+const Person = ({ person, removeHandler }) => {
   return (
     <div>
-      {text} <input value={value} onChange={onChange}/>
+      {person.name} {person.number}
+      <button onClick={removeHandler}>remove</button>
     </div>
   )
 }
 
-const Person = ({ person }) => <p>{person.name} {person.number}</p>
-
-const Persons = ({ persons, filter }) => {
+const Persons = ({ persons, filter, removeHandler }) => {
   return (
     <>
       {persons
-        .filter(person => person.name.toLowerCase()
-                              .includes(filter.toLowerCase()))
+        .filter(person => 
+          person.name.toLowerCase().includes(filter.toLowerCase())
+        )
         .map(person => 
-          <Person person={person} key={person.id}/>
+          <Person 
+            key={person.id}
+            person={person}
+            removeHandler={() => removeHandler(person.id)}
+          />
         )}
     </>
   )
 }
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
-  ])
-
+  const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNUmber] = useState('')
   const [filter, setFilter] = useState('')
 
-  const handleFilterChange = (event) => {
-    setFilter(event.target.value)
+  useEffect(() => {
+    personsService
+      .getAll()
+      .then(persons => {
+        setPersons(persons)
+      })
+  }, [])
+
+  const nameIsTaken = name => {
+    return persons.find(person => person.name === name) !== undefined
   }
 
   const handleSubmit = (event) => {
     event.preventDefault()
 
-    const foundPerson = persons.find(person => person.name === newName)
+    const newPersonValues = {
+      name: newName,
+      number: newNumber,
+    }
 
-    if (foundPerson !== undefined) {
-      alert(`${newName} is already added to phonebook`)
+    if (nameIsTaken(newName)) {
+      const numberUpdateConfirmMessage = `${newName} is already added to phonebook, replace the old number with a new one?`
+
+      if (window.confirm(numberUpdateConfirmMessage)) {
+        const personToUpdate = persons.find(person => 
+          person.name.toLowerCase() === newName.toLowerCase()
+        )
+        handleUpdate(personToUpdate.id, newPersonValues)
+      }
     } else {
-      const newPersons = persons.concat({
-        name: newName,
-        number: newNumber,
-        id: persons.length + 1
-      })
+      handleCreate(newPersonValues)
+    }
+  }
 
-      setPersons(newPersons)
+  const handleCreate = newPerson => {
+    personsService
+    .create(newPerson)
+    .then(createdPerson => {
+      setPersons(persons.concat(createdPerson))
       setNewName("")
       setNewNUmber("")
+    })
+  }
+
+  const handleUpdate = (id, newPersonValues) => {
+    personsService
+    .update(id, newPersonValues)
+    .then(updatedPerson => {
+      setPersons(
+        persons.map(person => 
+          person.id !== id ? person : updatedPerson
+        )
+      )
+      setNewName("")
+      setNewNUmber("")
+    })
+  }
+
+  const handleRemove = id => {
+    const personToDelete = persons.find(person => person.id === id)
+    if (window.confirm(`Delete ${personToDelete.name} ?`)) {
+      personsService
+        .remove(id)
+        .then(response => {
+          console.log('response id', id, response)
+          setPersons(persons.filter(person => person.id !== id))
+        })
     }
+  }
+
+  const handleFilterChange = (event) => {
+    setFilter(event.target.value)
   }
 
   const handleNameChange = (event) => {
@@ -70,27 +121,37 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Input text="Filter shown with"
-             value={filter}
-             onChange={handleFilterChange}/>
+      <Input
+        text="Filter shown with"
+        value={filter}
+        onChange={handleFilterChange}
+      />
       <h2>Add new</h2>
       <form onSubmit={handleSubmit}>
         <div>
-          <Input text="name:"
-                 value={newName}
-                 onChange={handleNameChange}/>
+          <Input
+            text="name:"
+            value={newName}
+            onChange={handleNameChange}
+          />
         </div>
         <div>
-          <Input text="number:"
-                 value={newNumber}
-                 onChange={handleNumberChange}/>
+          <Input
+            text="number:"
+            value={newNumber}
+            onChange={handleNumberChange}
+          />
         </div>
         <div>
           <button type="submit">add</button>
         </div>
       </form>
       <h2>Numbers</h2>
-      <Persons persons={persons} filter={filter}/>
+      <Persons
+        persons={persons}
+        filter={filter}
+        removeHandler={handleRemove}
+      />
     </div>
   )
 }
