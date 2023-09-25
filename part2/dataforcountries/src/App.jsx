@@ -3,17 +3,34 @@ import axios from "axios"
 
 const baseUrl = "https://studies.cs.helsinki.fi/restcountries/api"
 
+const findCountryDetails = name => {
+  return axios
+    .get(`${baseUrl}/name/${name}`)
+    .then(response => {
+      return response.data
+    })
+}
 
-const CountryDetails = ({ country }) => {
-  if (!country) {
+const CountryDetails = ({ name, showAll }) => {
+  const [country, setCountry] = useState(null)
+
+  useEffect(() => {
+    if (showAll) {
+      findCountryDetails(name)
+        .then(data => {
+          setCountry(data)
+        })
+    } else {
+      setCountry(null)
+    }
+  }, [showAll])
+
+  if (!showAll || !country) {
     return null
   }
 
-  const capitals = country.capital.join(", ")
   return (
     <>
-      <h1>{country.name.common}</h1>
-
       Capital(s): {country.capital.join(", ")}<br/>
       Area: {country.area}
       <h2>languages:</h2>
@@ -27,27 +44,42 @@ const CountryDetails = ({ country }) => {
   )
 }
 
-const Countries = ({ names }) => {
+const Country = ({ name }) => {
+  const [show, setShow] = useState(false)
+
   return (
-    <>
-      {names.map((name, index) => 
-        <p key={index}>{name}</p>
-      )}
-    </>
+    <div>
+      <div id="details-toggle">
+        {show ? <h1>{name}</h1> : name} <button onClick={() => setShow(!show)}>{show ? "hide" : "show"}</button>
+      </div>
+      <CountryDetails name={name} showAll={show}/>
+    </div>
   )
 }
 
-const Info = ({ names, country }) => {
+const Info = ({ names }) => {
   if (names.length > 10) {
     return <p>Too many countries, specify another filter</p>
 
   } else if (names.length > 1) {
-    return <Countries names={names}/>
+    return (
+      <>
+        {names.map((name, index) => 
+          <Country key={index} name={name}/>
+        )}
+      </>
+    )
 
   } else if (names.length === 1) {
-    return <CountryDetails country={country}/>
-
+    const name = names[0]
+    return (
+      <div>
+        <h1>{name}</h1>
+        <CountryDetails name={name} showAll={true}/>
+      </div>
+    )
   }
+
   return null
 }
 
@@ -55,17 +87,14 @@ function App() {
   const [value, setValue] = useState("")
   const [allNames, setAllNames] = useState([])
   const [matchingNames, setMatchingNames] = useState([])
-  const [country, setCountry] = useState(null)
 
   useEffect(() => {
     axios
       .get(`${baseUrl}/all`)
       .then(response => {
-        //console.log('fetched all')
-        const countries = response.data
-          .map(country => 
-            country.name.common
-          )
+        const countries = response.data.map(country => 
+          country.name.common
+        )
         setAllNames(countries)
       })
   }, [])
@@ -78,19 +107,6 @@ function App() {
       setMatchingNames(found)
   }, [allNames, value])
 
-  useEffect(() => {
-    if (matchingNames.length === 1) {
-      axios
-        .get(`${baseUrl}/name/${matchingNames[0]}`)
-        .then(response => {
-          //console.log('fetched', response.data.name.common)
-          setCountry(response.data)
-        })
-    } else {
-      setCountry(null)
-    }
-  }, [matchingNames])
-
   const handleChange = (event) => {
     setValue(event.target.value)
   }
@@ -98,7 +114,7 @@ function App() {
   return (
     <>
       find countries <input value={value} onChange={handleChange} />
-      <Info names={matchingNames} country={country}/>
+      <Info names={matchingNames}/>
     </>
   )
 }

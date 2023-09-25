@@ -1,0 +1,13 @@
+#details-toggle {
+    border: 1px dotted black;
+    display: flex;
+    align-items: center; /* Vertical align the elements to the center */
+}
+
+h1 {
+    margin: 0;
+}
+  
+button {
+    margin-left: auto; /* Push this element to the right */
+}
