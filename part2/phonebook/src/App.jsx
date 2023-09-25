@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
-import axios from "axios"
 import personsService from "./services/persons"
 import Input from './components/Input'
+import Notification from './components/Notification'
 
 const Person = ({ person, removeHandler }) => {
   return (
@@ -36,6 +36,9 @@ const App = () => {
   const [newNumber, setNewNUmber] = useState('')
   const [filter, setFilter] = useState('')
 
+  const [message, setMessage] = useState(null)
+  const [messageColor, setMessageColor] = useState(null)
+  
   useEffect(() => {
     personsService
       .getAll()
@@ -44,11 +47,33 @@ const App = () => {
       })
   }, [])
 
-  const nameIsTaken = name => {
-    return persons.find(person => person.name === name) !== undefined
+  const setSuccessMessage = message => {
+    setMessage(message)
+    setMessageColor("green")
+
+    setTimeout(() => {
+      setMessage(null)
+      setMessageColor(null)
+    }, 5000)
   }
 
-  const handleSubmit = (event) => {
+  const setErrorMessage = message => {
+    setMessage(message)
+    setMessageColor("red")
+
+    setTimeout(() => {
+      setMessage(null)
+      setMessageColor(null)
+    }, 5000)
+  }
+
+  const isNameTaken = name => {
+    return persons.find(person => 
+      person.name.toLowerCase() === name.toLowerCase()
+    )
+  }
+
+  const handleSubmit = event => {
     event.preventDefault()
 
     const newPersonValues = {
@@ -56,7 +81,7 @@ const App = () => {
       number: newNumber,
     }
 
-    if (nameIsTaken(newName)) {
+    if (isNameTaken(newName)) {
       const numberUpdateConfirmMessage = `${newName} is already added to phonebook, replace the old number with a new one?`
 
       if (window.confirm(numberUpdateConfirmMessage)) {
@@ -72,26 +97,38 @@ const App = () => {
 
   const handleCreate = newPerson => {
     personsService
-    .create(newPerson)
-    .then(createdPerson => {
-      setPersons(persons.concat(createdPerson))
-      setNewName("")
-      setNewNUmber("")
-    })
+      .create(newPerson)
+      .then(createdPerson => {
+        setMessage()
+        setMessageColor()
+        setPersons(persons.concat(createdPerson))
+        setNewName("")
+        setNewNUmber("")
+
+        setSuccessMessage(`Added ${createdPerson.name}`)
+      })
+      .catch(error => {
+        setErrorMessage(`Error adding ${newPerson.name}`)
+      })
   }
 
   const handleUpdate = (id, newPersonValues) => {
     personsService
-    .update(id, newPersonValues)
-    .then(updatedPerson => {
-      setPersons(
-        persons.map(person => 
-          person.id !== id ? person : updatedPerson
+      .update(id, newPersonValues)
+      .then(updatedPerson => {
+        setPersons(
+          persons.map(person => 
+            person.id !== id ? person : updatedPerson
+          )
         )
-      )
-      setNewName("")
-      setNewNUmber("")
-    })
+        setNewName("")
+        setNewNUmber("")
+
+        setSuccessMessage(`Updated ${updatedPerson.name}`)
+      })
+      .catch(error => {
+        setErrorMessage(`Information of ${newPersonValues.name} has already been removed from the server`)
+      })
   }
 
   const handleRemove = id => {
@@ -100,27 +137,26 @@ const App = () => {
       personsService
         .remove(id)
         .then(response => {
-          console.log('response id', id, response)
           setPersons(persons.filter(person => person.id !== id))
+
+          setSuccessMessage(`Deleted ${personToDelete.name}`)
+        })
+        .catch(error => {
+          setErrorMessage(`Error removing ${personToDelete.name}`)
         })
     }
   }
 
-  const handleFilterChange = (event) => {
-    setFilter(event.target.value)
-  }
+  const handleFilterChange = event => setFilter(event.target.value)
 
-  const handleNameChange = (event) => {
-    setNewName(event.target.value)
-  }
+  const handleNameChange = event => setNewName(event.target.value)
 
-  const handleNumberChange = (event) => {
-    setNewNUmber(event.target.value)
-  }
+  const handleNumberChange = event => setNewNUmber(event.target.value)
 
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} color={messageColor}/>
       <Input
         text="Filter shown with"
         value={filter}
