@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import countryService from "./services/countries"
+import countryService from "./services/country"
 import Info from './components/Info'
 
 function App() {
@@ -7,6 +7,7 @@ function App() {
   const [allNames, setAllNames] = useState([])
   const [matchingNames, setMatchingNames] = useState([])
 
+  console.log('App loaded')
   useEffect(() => {
     countryService.findAll()
       .then(returnedCountries => {
