@@ -1,4 +1,4 @@
-const Input = ({text, value, onChange}) => {
+const Input = ({ text, value, onChange }) => {
   return (
     <div>
       {text} <input value={value} onChange={onChange}/>

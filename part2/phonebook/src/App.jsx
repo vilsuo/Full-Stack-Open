@@ -3,6 +3,8 @@ import personsService from "./services/persons"
 import Input from './components/Input'
 import Notification from './components/Notification'
 
+// add proper messages
+
 const Person = ({ person, removeHandler }) => {
   return (
     <div>
@@ -108,7 +110,7 @@ const App = () => {
         setSuccessMessage(`Added ${createdPerson.name}`)
       })
       .catch(error => {
-        setErrorMessage(`Error adding ${newPerson.name}`)
+        setErrorMessage(error.response.data.error)
       })
   }
 
@@ -127,7 +129,7 @@ const App = () => {
         setSuccessMessage(`Updated ${updatedPerson.name}`)
       })
       .catch(error => {
-        setErrorMessage(`Information of ${newPersonValues.name} has already been removed from the server`)
+        setErrorMessage(error.response.data.error)
       })
   }
 
@@ -136,12 +138,12 @@ const App = () => {
     if (window.confirm(`Delete ${personToDelete.name} ?`)) {
       personsService
         .remove(id)
-        .then(response => {
+        .then(() => {
           setPersons(persons.filter(person => person.id !== id))
 
           setSuccessMessage(`Deleted ${personToDelete.name}`)
         })
-        .catch(error => {
+        .catch(() => {
           setErrorMessage(`Error removing ${personToDelete.name}`)
         })
     }
