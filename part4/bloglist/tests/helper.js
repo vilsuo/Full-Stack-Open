@@ -6,7 +6,7 @@ const initialBlogs = [
     'title' : 'http blog',
     'author' : 'me',
     'url' : 'someurl',
-    'likes' : 0
+    'likes' : 1
   },
   {
     'title' : 'node blog',
@@ -22,11 +22,38 @@ const initialBlogs = [
   }
 ]
 
+const malformattedId = '6518183d6247d6748083692'
+
+const nonExistingId = async () => {
+  const blogToBeDeleted = new Blog({
+    'title' : 'blog to be deleted',
+    'author' : 'popular author',
+    'url' : 'deletedurl',
+    'likes' : 1
+  })
+
+  await blogToBeDeleted.save()
+  await blogToBeDeleted.deleteOne()
+
+  return blogToBeDeleted.toJSON().id
+}
+
+const nonExistingBlog = {
+  'title' : 'my new blog',
+  'author' : 'me',
+  'url' : 'somenewurl',
+  'likes' : 15
+}
+
 const blogsInDb = async () => {
   const blogs = await Blog.find({})
   return blogs.map(blog => blog.toJSON())
 }
 
 module.exports = {
-  initialBlogs, blogsInDb
+  initialBlogs, 
+  malformattedId, 
+  nonExistingId, 
+  nonExistingBlog,
+  blogsInDb
 }
