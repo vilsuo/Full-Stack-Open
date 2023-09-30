@@ -2,6 +2,8 @@ const blogsRouter = require('express').Router()
 
 const Blog = require('../models/blog')
 
+// todo remove next in routes
+
 blogsRouter.get('/', async (request, response, next) => {
   try {
     const blogs = await Blog.find({})
@@ -14,7 +16,9 @@ blogsRouter.get('/', async (request, response, next) => {
 blogsRouter.post('/', async (request, response, next) => {
   const body = request.body
   if (!body.title || !body.url) {
-    return response.status(400).send({ error: 'missing title or url' })
+    return response
+      .status(400)
+      .send({ error: 'missing title or url' })
   }
 
   body.likes = body.likes || 0
