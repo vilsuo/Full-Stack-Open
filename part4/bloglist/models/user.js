@@ -13,7 +13,18 @@ const userSchema = new mongoose.Schema({
     unique: true
   },
   // password is valitated in controller
-  passwordHash: String
+  passwordHash: String,
+  // The ids of the notes are stored within the user document as
+  // an array of Mongo ids
+  blogs: [
+    // Mongo does not inherently know that this is a field that
+    // references blogs, the syntax is purely related to and defined
+    // by Mongoose
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Blog'
+    }
+  ]
 })
 
 userSchema.plugin(uniqueValidator)

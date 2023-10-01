@@ -1,19 +1,20 @@
 const blogsRouter = require('express').Router()
 
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
-// todo remove next in routes
+// populate not tested, test also that correct values are shown
+blogsRouter.get('/', async (request, response) => {
+  const blogs = await Blog
+    .find({})
+    // populate user but do not show users blogs
+    .populate('user', { blogs: 0 })
 
-blogsRouter.get('/', async (request, response, next) => {
-  try {
-    const blogs = await Blog.find({})
-    response.json(blogs)
-  } catch (exception) {
-    next(exception)
-  }
+  response.json(blogs)
 })
 
-blogsRouter.post('/', async (request, response, next) => {
+// adding user not tested
+blogsRouter.post('/', async (request, response) => {
   const body = request.body
   if (!body.title || !body.url) {
     return response
@@ -22,16 +23,24 @@ blogsRouter.post('/', async (request, response, next) => {
   }
 
   body.likes = body.likes || 0
+
+  // temp start
+  const users = await User.find({})
+  const user = users[0]
+  // temp end
+
+  body.user = user._id
+
   const blog = new Blog(body)
-  try {
-    const result = await blog.save()
-    response.status(201).json(result)
-  } catch (exception) {
-    next(exception)
-  }
+  const savedBlog = await blog.save()
+
+  user.blogs = user.blogs.concat(savedBlog._id)
+  await user.save()
+
+  response.status(201).json(savedBlog)
 })
 
-blogsRouter.put('/:id', async (request, response, next) => {
+blogsRouter.put('/:id', async (request, response) => {
   const id = request.params.id
   const likes = request.body.likes
 
@@ -41,24 +50,17 @@ blogsRouter.put('/:id', async (request, response, next) => {
     )
   }
 
-  try {
-    const updatedNote = await Blog.findByIdAndUpdate(
-      id, { 'likes': likes}, { new: true }
-    )
-    response.json(updatedNote)
-  } catch (exception) {
-    next(exception)
-  }
+  const updatedNote = await Blog.findByIdAndUpdate(
+    id, { 'likes': likes}, { new: true }
+  )
+  response.json(updatedNote)
 })
 
-blogsRouter.delete('/:id', async (request, response, next) => {
-  try {
-    const id = request.params.id
-    await Blog.findByIdAndDelete(id)
-    response.status(204).end()
-  } catch (exception) {
-    next(exception)
-  }
+blogsRouter.delete('/:id', async (request, response) => {
+  const id = request.params.id
+  await Blog.findByIdAndDelete(id)
+
+  response.status(204).end()
 })
 
 module.exports = blogsRouter

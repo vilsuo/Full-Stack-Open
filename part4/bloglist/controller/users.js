@@ -6,6 +6,17 @@ const saltRounds = 10
 
 const passwordMinLength = 3
 
+// route not tested
+// does not test populate
+usersRouter.get('/', async (request, response) => {
+  const users = await User
+    .find({})
+    .populate('blogs', { user: 0 })
+
+    response.json(users)
+})
+
+// it is not test that blogs array is present
 usersRouter.post('/', async (request, response) => {
   const {name, username, password} = request.body
 
