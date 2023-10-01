@@ -22,9 +22,11 @@ mongoose.connect(config.MONGODB_URI)
   })
 
 app.use(cors())
+
 app.use(express.json())
 
-// after json
+// after json, before routes
+app.use(middleWare.tokenExtractor)
 app.use(middleWare.requestLogger)
 
 app.use('/api/login', loginRouter)

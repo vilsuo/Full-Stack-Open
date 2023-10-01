@@ -1,9 +1,9 @@
 POST http://localhost:3001/api/blogs HTTP/1.1
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InZlbGxpIiwiaWQiOiI2NTE5NjQzZDE1ODUzZGI5MzY5YjMxODMiLCJpYXQiOjE2OTYxNjU1MTl9.IAKFEUWRlAW-w5jwltElsJsoHTVE_d0ZL2-QFW10-PE
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InZlbGxpIiwiaWQiOiI2NTE5NjQzZDE1ODUzZGI5MzY5YjMxODMiLCJpYXQiOjE2OTYxODc0MzF9.dmAa0l4VW_9vyaDM8m50_AyuNFpbeED605ghFX3PsfI
 
 {
-  "title": "blog posted with token 2",
+  "title": "blog posted with token 17",
   "author": "author",
   "url": "sometesturl",
   "likes": 0

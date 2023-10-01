@@ -1,44 +1,25 @@
 const blogsRouter = require('express').Router()
-
+const middleWare = require('../utils/middleware')
 const Blog = require('../models/blog')
 const User = require('../models/user')
 
 const jwt = require('jsonwebtoken')
-
-// There are several ways of sending the token from the browser to
-// the server. We will use the Authorization header. The header also
-// tells which authentication scheme is used.
-//
-// The Bearer scheme is suitable for our needs
-const getTokenFrom = request => {
-  const authorization = request.get('authorization')
-  if (authorization && authorization.startsWith('Bearer ')) {
-    return authorization.replace('Bearer ', '')
-  }
-  return null
-}
 
 // populate not tested, test also that correct values are shown
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog
     .find({})
     // populate user but do not show users blogs
-    .populate('user', { blogs: 0 })
 
   response.json(blogs)
 })
 
-// adding user not tested
-blogsRouter.post('/', async (request, response) => {
-  // The validity of the token is checked
-  //
-  // The method also decodes the token, or returns the Object which
-  // the token was based on
-  const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: 'token invalid' })
+// TODO add populate to returned value?
+blogsRouter.post('/', middleWare.userExtractor, async (request, response) => {
+  const user = request.user
+  if (!user) {
+    return response.status(500).send({ error: 'user does not exist' })
   }
-  const user = await User.findById(decodedToken.id)
 
   const body = request.body
   if (!body.title || !body.url) {
@@ -47,10 +28,13 @@ blogsRouter.post('/', async (request, response) => {
       .send({ error: 'missing title or url' })
   }
 
-  body.likes = body.likes || 0
-  body.user = user._id
-
-  const blog = new Blog(body)
+  const blog = new Blog({
+    title: body.title,
+    author: body.author,
+    url: body.url,
+    likes: body.likes || 0,
+    user: user._id
+  })
   const savedBlog = await blog.save()
 
   user.blogs = user.blogs.concat(savedBlog._id)
@@ -59,7 +43,7 @@ blogsRouter.post('/', async (request, response) => {
   response.status(201).json(savedBlog)
 })
 
-// todo implement with token and test
+// TODO implement with token and test
 blogsRouter.put('/:id', async (request, response) => {
   const id = request.params.id
   const likes = request.body.likes
@@ -76,10 +60,26 @@ blogsRouter.put('/:id', async (request, response) => {
   response.json(updatedNote)
 })
 
-// todo implement with token and test
-blogsRouter.delete('/:id', async (request, response) => {
-  const id = request.params.id
-  await Blog.findByIdAndDelete(id)
+// TODO test
+blogsRouter.delete('/:id', middleWare.userExtractor, async (request, response) => {
+  const user = request.user
+  if (!user) {
+    return response.status(500).send({ error: 'user does not exist' })
+  }
+
+  const blogToDelete = await Blog.findById(request.params.id)
+  if (!blogToDelete) {
+    return response.status(500).send({ error: 'blog does not exist' })
+  }
+
+  if (!user._id.equals(blogToDelete.user)) {
+    return response.status(401).send({ error: 'user can not delete this blog' })
+  }
+
+  await Blog.findByIdAndDelete(blogToDelete._id)
+
+  user.blogs = user.blogs.filter(blog => blog._id !== blogToDelete._id)
+  await user.save()
 
   response.status(204).end()
 })

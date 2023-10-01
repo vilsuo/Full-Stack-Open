@@ -16,6 +16,8 @@ const userSchema = new mongoose.Schema({
   passwordHash: String,
   // The ids of the notes are stored within the user document as
   // an array of Mongo ids
+  //
+  // Arrays are special because they implicitly have a default value of []
   blogs: [
     // Mongo does not inherently know that this is a field that
     // references blogs, the syntax is purely related to and defined

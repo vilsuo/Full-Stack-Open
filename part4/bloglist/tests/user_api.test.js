@@ -27,7 +27,6 @@ beforeEach(async () => {
   //console.log('users', users)
 })
 
-// todo test error codes
 describe('post', () => {
   test('valid user post', async () => {
     const validAndUniqueUser = userHelper.validNotTakenUser

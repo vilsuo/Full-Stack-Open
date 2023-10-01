@@ -9,10 +9,9 @@ const initialBlogs = [
     'likes' : 1
   },
   {
-    'title' : 'node blog',
+    'title' : 'blog without likes property',
     'author' : 'me',
     'url' : 'otherurl',
-    'likes' : 3
   },
   {
     'title' : 'react blog',
