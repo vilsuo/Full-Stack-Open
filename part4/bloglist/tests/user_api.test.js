@@ -44,6 +44,7 @@ describe('post', () => {
     const returnedUser = response.body
     expect(returnedUser.name).toBe(validAndUniqueUser.name)
     expect(returnedUser.username).toBe(validAndUniqueUser.username)
+    expect(returnedUser.blogs).toHaveLength(0)
 
     // password is not included in the response
     expect(returnedUser.password).not.toBeDefined()

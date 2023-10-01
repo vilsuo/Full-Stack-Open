@@ -3,6 +3,7 @@ const app = express()
 require('express-async-errors')
 
 const cors = require('cors')
+const loginRouter = require('./controller/login')
 const blogsRouter = require('./controller/blogs')
 const usersRouter = require('./controller/users')
 const logger = require('./utils/logger')
@@ -26,6 +27,7 @@ app.use(express.json())
 // after json
 app.use(middleWare.requestLogger)
 
+app.use('/api/login', loginRouter)
 app.use('/api/blogs', blogsRouter)
 app.use('/api/users', usersRouter)
 

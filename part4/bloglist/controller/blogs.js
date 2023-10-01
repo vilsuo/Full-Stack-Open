@@ -3,6 +3,21 @@ const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
 
+const jwt = require('jsonwebtoken')
+
+// There are several ways of sending the token from the browser to
+// the server. We will use the Authorization header. The header also
+// tells which authentication scheme is used.
+//
+// The Bearer scheme is suitable for our needs
+const getTokenFrom = request => {
+  const authorization = request.get('authorization')
+  if (authorization && authorization.startsWith('Bearer ')) {
+    return authorization.replace('Bearer ', '')
+  }
+  return null
+}
+
 // populate not tested, test also that correct values are shown
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog
@@ -15,6 +30,16 @@ blogsRouter.get('/', async (request, response) => {
 
 // adding user not tested
 blogsRouter.post('/', async (request, response) => {
+  // The validity of the token is checked
+  //
+  // The method also decodes the token, or returns the Object which
+  // the token was based on
+  const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'token invalid' })
+  }
+  const user = await User.findById(decodedToken.id)
+
   const body = request.body
   if (!body.title || !body.url) {
     return response
@@ -23,12 +48,6 @@ blogsRouter.post('/', async (request, response) => {
   }
 
   body.likes = body.likes || 0
-
-  // temp start
-  const users = await User.find({})
-  const user = users[0]
-  // temp end
-
   body.user = user._id
 
   const blog = new Blog(body)
@@ -40,6 +59,7 @@ blogsRouter.post('/', async (request, response) => {
   response.status(201).json(savedBlog)
 })
 
+// todo implement with token and test
 blogsRouter.put('/:id', async (request, response) => {
   const id = request.params.id
   const likes = request.body.likes
@@ -56,6 +76,7 @@ blogsRouter.put('/:id', async (request, response) => {
   response.json(updatedNote)
 })
 
+// todo implement with token and test
 blogsRouter.delete('/:id', async (request, response) => {
   const id = request.params.id
   await Blog.findByIdAndDelete(id)
