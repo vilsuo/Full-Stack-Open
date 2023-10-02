@@ -4,6 +4,7 @@ import Blog from './components/Blog'
 import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
+import Togglable from './components/Toggeable'
 
 // notification clears too quickly if old notification message
 // is still present
@@ -63,10 +64,12 @@ const App = () => {
       {user.name} logged in
       <button onClick={handleLogout}>logout</button>
 
-      <BlogForm
-        addBlog={addBlog}
-        messageSetter={setMessageAndClearIt}
-      />
+      <Togglable buttonLabel='new blog'>
+        <BlogForm
+          addBlog={addBlog}
+          messageSetter={setMessageAndClearIt}
+        />
+      </Togglable>
 
       {blogs.map(blog =>
         <Blog key={blog.id} blog={blog} />
