@@ -5,16 +5,18 @@ const User = require('../models/user')
 
 const jwt = require('jsonwebtoken')
 
-// populate not tested, test also that correct values are shown
+// TODO
+// - populate user but do not show users blogs?
+// - test populate
+//    - test that correct values are shown
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog
     .find({})
-    // populate user but do not show users blogs
 
   response.json(blogs)
 })
 
-// TODO add populate to returned value?
+// - add populate to returned value?
 blogsRouter.post('/', middleWare.userExtractor, async (request, response) => {
   const user = request.user
   if (!user) {
@@ -43,7 +45,9 @@ blogsRouter.post('/', middleWare.userExtractor, async (request, response) => {
   response.status(201).json(savedBlog)
 })
 
-// TODO implement with token and test
+// TODO
+// - implement with token
+// - test
 blogsRouter.put('/:id', async (request, response) => {
   const id = request.params.id
   const likes = request.body.likes
@@ -60,7 +64,9 @@ blogsRouter.put('/:id', async (request, response) => {
   response.json(updatedNote)
 })
 
-// TODO test
+// TODO
+// - implement with token
+// - test
 blogsRouter.delete('/:id', middleWare.userExtractor, async (request, response) => {
   const user = request.user
   if (!user) {

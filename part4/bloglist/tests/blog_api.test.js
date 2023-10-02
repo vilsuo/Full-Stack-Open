@@ -11,6 +11,15 @@ const mongoose = require('mongoose')
 const Blog = require('../models/blog')
 const User = require('../models/user')
 
+/*
+TODO
+- post
+  - test when user created second blog, the blog is APPENDED to the
+    user blogs list
+- test other methods
+
+*/
+
 // when setting headers, you have to call .set() AFTER calling .post()
 
 beforeEach(async() => {
