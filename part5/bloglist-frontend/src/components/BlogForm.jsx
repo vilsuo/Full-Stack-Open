@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import blogService from '../services/blogs'
 
-// author is not required? (success message tries to show author)
+// author is not required in backend? (success message tries to
+// show author)
 
-const BlogForm = ({  addBlog, messageSetter }) => {
+const BlogForm = ({ addBlog }) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
@@ -11,18 +11,11 @@ const BlogForm = ({  addBlog, messageSetter }) => {
   const handleSubmit = async event => {
     event.preventDefault()
 
-    try {
-      const blog = await blogService.create({ title, author, url })
-      addBlog(blog)
-
+    const wasAdded = await addBlog({ title, author, url })
+    if (wasAdded) {
       setTitle('')
       setAuthor('')
       setUrl('')
-
-      messageSetter(`a new blog ${blog.title} by ${blog.author} added`)
-
-    } catch (exception) {
-      messageSetter(exception.response.data.error)
     }
   }
 

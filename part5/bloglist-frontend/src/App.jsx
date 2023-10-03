@@ -41,8 +41,19 @@ const App = () => {
     setMessageAndClearIt('logged out')
   }
 
-  const addBlog = blogToAdd => {
-    setBlogs(blogs.concat(blogToAdd))
+  const addBlog = async blogToAdd => {
+    try {
+      const createdBlog = await blogService.create(blogToAdd)
+      setBlogs(blogs.concat(createdBlog))
+
+      setMessageAndClearIt(
+        `a new blog ${createdBlog.title} by ${createdBlog.author} added`
+      )
+      return true
+    } catch (exception) {
+      setMessageAndClearIt(exception.response.data.error)
+      return false
+    }
   }
 
   // todo set message
@@ -93,7 +104,6 @@ const App = () => {
       <Togglable buttonLabel='create new blog'>
         <BlogForm
           addBlog={addBlog}
-          messageSetter={setMessageAndClearIt}
         />
       </Togglable>
 
