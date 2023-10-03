@@ -45,8 +45,31 @@ const App = () => {
     setBlogs(blogs.concat(blogToAdd))
   }
 
-  const removeBlog = blogToRemove => {
-    setBlogs(blogs.filter(blog => blog.id !== blogToRemove.id))
+  // todo set message
+  const updateBlog = async (id, newBlogValues) => {
+    try {
+      const updatedBlog = await blogService.update(id, newBlogValues)
+
+      setBlogs(blogs.map(blog => blog.id !== id ? blog : updatedBlog))
+      console.log('updated', updatedBlog)
+
+    } catch (exception) {
+      console.log('exception in update', exception)
+    }
+  }
+
+  // todo set message
+  const removeBlog = async id => {
+    console.log('blogToRemove')
+    try {
+      await blogService.remove(id)
+
+      setBlogs(blogs.filter(blog => blog.id !== id))
+      console.log('removed', id)
+
+    } catch (exception) {
+      console.log('exception in remove', exception)
+    }
   }
 
   const setMessageAndClearIt = newMessage => {
@@ -83,8 +106,9 @@ const App = () => {
         .map(blog =>
           <Blog
             key={blog.id}
+            updateBlog={updateBlog}
             removeBlog={removeBlog}
-            blogData={blog}
+            blog={blog}
             username={user.username}
           />
         )

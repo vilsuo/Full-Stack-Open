@@ -6,8 +6,7 @@ import blogService from '../services/blogs'
 
 // add url as hyperlink
 
-const Blog = ({ removeBlog, blogData, username }) => {
-  const [blog, setBlog] = useState(blogData)
+const Blog = ({ updateBlog, removeBlog, blog, username }) => {
   const [showAll, setShowAll] = useState(false)
 
   const blogStyle = {
@@ -18,69 +17,47 @@ const Blog = ({ removeBlog, blogData, username }) => {
     marginBottom: 5
   }
 
-  const toggleDetails = () => {
-    setShowAll(!showAll)
-  }
-
   const handleLike = async () => {
-    try {
-      const updatedBlog = await blogService.update(
-        blog.id, { 'likes': blog.likes + 1 }
-      )
-      setBlog(updatedBlog)
-    } catch (exception) {
-      console.log('error', exception)
-    }
+    await updateBlog(blog.id, { ...blog, 'likes': blog.likes + 1, 'user': blog.user.id })
   }
 
   const handleRemove = async () => {
-    try {
-      const message = `Remove blog ${blog.title} by ${blog.author}`
-      if (window.confirm(message)) {
-        await blogService.remove(blog.id)
-        console.log('removed')
-
-        // remove from all blogs
-        removeBlog(blog)
-      }
-    } catch (exception) {
-      console.log('error', exception)
+    const message = `Remove blog ${blog.title} by ${blog.author}`
+    if (window.confirm(message)) {
+      await removeBlog(blog.id)
     }
   }
-
-  const text = showAll ? 'hide' : 'view'
 
   const removeButton = () => {
-    if (username !== blog.user.username) {
-      return null
-    } else {
-      return <button onClick={handleRemove}>remove</button>
-    }
+    return username === blog.user.username
+      ? <button onClick={handleRemove}>remove</button>
+      : null
   }
 
-  const info = () => {
-    if (!showAll) {
-      return null
-    } else {
-      return (
-        <div>
-          {blog.url}<br/>
-          likes {blog.likes}
-          <button onClick={handleLike}>like</button><br/>
-          {blog.user.name}<br/>
-          {removeButton()}
-        </div>
-      )
-    }
+  const toggleButton = () => (
+    <button onClick={() => setShowAll(!showAll)}>
+      {showAll ? 'hide' : 'view'}
+    </button>
+  )
+
+  const details = () => {
+    return (
+      <div>
+        {blog.url}<br/>
+        likes {blog.likes}
+        <button onClick={handleLike}>like</button><br/>
+        {blog.user.name}<br/>
+        { removeButton() }
+      </div>
+    )
   }
 
   return (
     <div style={blogStyle}>
       <div>
-        {blog.title} {blog.author}
-        <button onClick={toggleDetails}>{text}</button><br/>
+        {blog.title} {blog.author} { toggleButton() }
       </div>
-      { showAll && info() }
+      { showAll && details() }
     </div>
   )
 }
