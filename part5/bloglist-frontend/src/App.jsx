@@ -31,7 +31,7 @@ const App = () => {
   useEffect(() => {
     blogService
       .getAll()
-      .then(blogs => setBlogs(blogs))  
+      .then(blogs => setBlogs(blogs))
   }, [])
 
   const handleLogout = () => {
@@ -65,7 +65,7 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
-      
+
       <Notification message={message} />
 
       {user.name} logged in

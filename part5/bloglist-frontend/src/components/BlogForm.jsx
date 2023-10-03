@@ -1,5 +1,5 @@
-import { useState } from "react"
-import blogService from "../services/blogs"
+import { useState } from 'react'
+import blogService from '../services/blogs'
 
 // author is not required? (success message tries to show author)
 
@@ -25,7 +25,7 @@ const BlogForm = ({  addBlog, messageSetter }) => {
       messageSetter(exception.response.data.error)
     }
   }
-  
+
   return (
     <div>
       <h2>create new</h2>

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState } from 'react'
 import blogService from '../services/blogs'
 
 // displays name of the user the blog belongs to, but
@@ -81,7 +81,7 @@ const Blog = ({ removeBlog, blogData, username }) => {
         <button onClick={toggleDetails}>{text}</button><br/>
       </div>
       { showAll && info() }
-    </div>  
+    </div>
   )
 }
 
