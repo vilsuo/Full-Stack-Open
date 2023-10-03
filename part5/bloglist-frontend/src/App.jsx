@@ -3,7 +3,7 @@ import blogService from './services/blogs'
 import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
-import Togglable from './components/Toggeable'
+import Togglable from './components/Togglable'
 import Blog from './components/Blog'
 
 // notification clears too quickly if old notification message
@@ -49,9 +49,7 @@ const App = () => {
   const updateBlog = async (id, newBlogValues) => {
     try {
       const updatedBlog = await blogService.update(id, newBlogValues)
-
       setBlogs(blogs.map(blog => blog.id !== id ? blog : updatedBlog))
-      console.log('updated', updatedBlog)
 
     } catch (exception) {
       console.log('exception in update', exception)
@@ -63,9 +61,7 @@ const App = () => {
     console.log('blogToRemove')
     try {
       await blogService.remove(id)
-
       setBlogs(blogs.filter(blog => blog.id !== id))
-      console.log('removed', id)
 
     } catch (exception) {
       console.log('exception in remove', exception)

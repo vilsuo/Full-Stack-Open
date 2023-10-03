@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import blogService from '../services/blogs'
 
 // displays name of the user the blog belongs to, but
 // creating users does not require to give the name
@@ -10,7 +9,7 @@ const Blog = ({ updateBlog, removeBlog, blog, username }) => {
   const [showAll, setShowAll] = useState(false)
 
   const blogStyle = {
-    paddingTop: 10,
+    paddingTop: 2,
     paddingLeft: 2,
     border: 'solid',
     borderWidth: 1,
@@ -43,10 +42,10 @@ const Blog = ({ updateBlog, removeBlog, blog, username }) => {
   const details = () => {
     return (
       <div>
-        {blog.url}<br/>
-        likes {blog.likes}
+        <span>{blog.url}</span><br/>
+        <span>likes {blog.likes}</span>
         <button onClick={handleLike}>like</button><br/>
-        {blog.user.name}<br/>
+        <span>{blog.user.name}</span><br/>
         { removeButton() }
       </div>
     )
@@ -55,7 +54,8 @@ const Blog = ({ updateBlog, removeBlog, blog, username }) => {
   return (
     <div style={blogStyle}>
       <div>
-        {blog.title} {blog.author} { toggleButton() }
+        <span>{blog.title} {blog.author}</span>
+        { toggleButton() }
       </div>
       { showAll && details() }
     </div>
