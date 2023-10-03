@@ -73,8 +73,11 @@ blogsRouter.put('/:id', async (request, response) => {
 })
 
 // TODO
-// - implement with token
 // - test
+//    - non existing user
+//    - with user that does not 'own' the blog
+//    - non existing blog
+//  - that blog is deleted also from the owner
 blogsRouter.delete('/:id', middleWare.userExtractor, async (request, response) => {
   const user = request.user
   if (!user) {
@@ -87,12 +90,15 @@ blogsRouter.delete('/:id', middleWare.userExtractor, async (request, response) =
   }
 
   if (!user._id.equals(blogToDelete.user)) {
-    return response.status(401).send({ error: 'user can not delete this blog' })
+    return response.status(401).send({ error: 'this user can not delete this blog' })
   }
 
   await Blog.findByIdAndDelete(blogToDelete._id)
 
-  user.blogs = user.blogs.filter(blog => blog._id !== blogToDelete._id)
+  // remove blog from the user also
+  user.blogs = user.blogs.filter(blog => 
+    !blog._id.equals(blogToDelete._id)
+  )
   await user.save()
 
   response.status(204).end()
