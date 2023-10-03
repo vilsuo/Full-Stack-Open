@@ -22,10 +22,13 @@ TODO
 
 // when setting headers, you have to call .set() AFTER calling .post()
 
+let createdUser
+
 beforeEach(async() => {
   await Blog.deleteMany({})
   await User.deleteMany({})
 
+  createdUser = await createUser(userHelper.initialUsers[0])
   /*
   const blogObjects = helper.initialBlogs
     .map(blog => new Blog(blog))
@@ -44,127 +47,140 @@ const createUser = async (user) => {
   return await userToBeCreated.save()
 }
 
-describe('posting with invalid token', () => {
-  test('posting without token returns unauthorized', async () => {
-    const validBlogToPost = helper.initialBlogs[0]
-    const response = await api
-      .post('/api/blogs')
-      .send(validBlogToPost)
-      .expect(401)
-      .expect('Content-Type', /application\/json/)
+describe('posting', () => {
+  describe('posting with invalid token', () => {
+    test('posting without token returns unauthorized', async () => {
+      const validBlogToPost = helper.initialBlogs[0]
+      const response = await api
+        .post('/api/blogs')
+        .send(validBlogToPost)
+        .expect(401)
+        .expect('Content-Type', /application\/json/)
 
-    expect(response.body.error).toBe('token required')
-  })
-  
-  test('posting with invalid token returns unauthorized', async () => {
-    const invalidToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InZpbGlobyIsImlkIjoiNjUxOWNhZjc2OWYzMWZhNGQyNjAzMWZjIiwiaWF0IjoxNjk2MTg5MTk2fQ.tMhKLvC_WFsrZtEdYhVuNEOMmgajGEsXmrpGOcPody4'
-    const validBlogToPost = helper.initialBlogs[0]
-    await api
-      .post('/api/blogs')
-      .set({ 'Authorization': `Bearer ${invalidToken}` })
-      .send(validBlogToPost)
-      .expect(401)
-      .expect('Content-Type', /application\/json/)
-  })
-})
-
-describe('posting with valid token', () => {
-  test('created blog is returned', async () => {
-    const createdUser = await createUser(userHelper.initialUsers[0])
-
-    const validBlogToPost = helper.initialBlogs[0]
-    const validToken = generateToken(createdUser.username, createdUser._id)
-    const response = await api
-      .post('/api/blogs')
-      .set({ 'Authorization': `Bearer ${validToken}` })
-      .send(validBlogToPost)
-      .expect(201)
-      .expect('Content-Type', /application\/json/)
-
-      const createdBlog = response.body
-      expect(createdBlog.id).toBeDefined()
-  
-      expect(createdBlog.title).toBe(validBlogToPost.title)
-      expect(createdBlog.author).toBe(validBlogToPost.author)
-      expect(createdBlog.url).toBe(validBlogToPost.url)
-      expect(createdBlog.likes).toBe(validBlogToPost.likes)
+      expect(response.body.error).toBe('token required')
+    })
+    
+    test('posting with invalid token returns unauthorized', async () => {
+      const invalidToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InZpbGlobyIsImlkIjoiNjUxOWNhZjc2OWYzMWZhNGQyNjAzMWZjIiwiaWF0IjoxNjk2MTg5MTk2fQ.tMhKLvC_WFsrZtEdYhVuNEOMmgajGEsXmrpGOcPody4'
+      const validBlogToPost = helper.initialBlogs[0]
+      await api
+        .post('/api/blogs')
+        .set({ 'Authorization': `Bearer ${invalidToken}` })
+        .send(validBlogToPost)
+        .expect(401)
+        .expect('Content-Type', /application\/json/)
+    })
   })
 
-  test('created blog has default zero likes', async () => {
-    const createdUser = await createUser(userHelper.initialUsers[0])
+  describe('posting with valid token', () => {
+    test('created blog is returned', async () => {
+      const validBlogToPost = helper.initialBlogs[0]
+      const validToken = generateToken(createdUser.username, createdUser._id)
+      const response = await api
+        .post('/api/blogs')
+        .set({ 'Authorization': `Bearer ${validToken}` })
+        .send(validBlogToPost)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
 
-    const validBlogToPost = helper.initialBlogs[1]
-    expect(validBlogToPost.likes).not.toBeDefined()
+        const createdBlog = response.body
+        expect(createdBlog.id).toBeDefined()
+    
+        expect(createdBlog.title).toBe(validBlogToPost.title)
+        expect(createdBlog.author).toBe(validBlogToPost.author)
+        expect(createdBlog.url).toBe(validBlogToPost.url)
+        expect(createdBlog.likes).toBe(validBlogToPost.likes)
+    })
 
-    const validToken = generateToken(createdUser.username, createdUser._id)
-    const response = await api
-      .post('/api/blogs')
-      .set({ 'Authorization': `Bearer ${validToken}` })
-      .send(validBlogToPost)
-      .expect(201)
-      .expect('Content-Type', /application\/json/)
+    test('created blog has default zero likes', async () => {
+      const validBlogToPost = helper.initialBlogs[1]
+      expect(validBlogToPost.likes).not.toBeDefined()
 
-      const createdBlog = response.body
-      expect(createdBlog.likes).toBe(0)
-  })
+      const validToken = generateToken(createdUser.username, createdUser._id)
+      const response = await api
+        .post('/api/blogs')
+        .set({ 'Authorization': `Bearer ${validToken}` })
+        .send(validBlogToPost)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
 
-  // todo test also second 
-  test('blog is added to the user with the token and that user is added to the blog', async () => {
-    const createdUser = await createUser(userHelper.initialUsers[0])
+        const createdBlog = response.body
+        expect(createdBlog.likes).toBe(0)
+    })
 
-    const validBlogToPost = helper.initialBlogs[0]
-    const validToken = generateToken(createdUser.username, createdUser._id)
-    const response = await api
-      .post('/api/blogs')
-      .set({ 'Authorization': `Bearer ${validToken}` })
-      .send(validBlogToPost)
+    // todo test also second 
+    test('the token holder is set as the user of the blog and the blog is added to the token holders blogs list', async () => {
+      const validBlogToPost = helper.initialBlogs[0]
+      const validToken = generateToken(createdUser.username, createdUser._id)
+      const response = await api
+        .post('/api/blogs')
+        .set({ 'Authorization': `Bearer ${validToken}` })
+        .send(validBlogToPost)
 
-      const createdBlog = response.body
-      expect(createdBlog.user).toEqual(createdUser._id.toString())
+      // find the created blog...
+      const createdBlog = await Blog.findById(response.body.id)
+      // ...and check it has the token holder as its user
+      expect(createdBlog.user.toString())
+        .toBe(createdUser._id.toString())
       
+      // find the user of the token...
       const user = await User.findById(createdUser._id)
-      expect(user.blogs.map(blog => blog.toString())).toContain(createdBlog.id)
-  })
+      // ...and check that users blog id list contains the created blogs id
+      expect(user.blogs.map(blogId => blogId.toString()))
+        .toContain(createdBlog._id.toString())
+    })
 
-  test('a blog without title is bad request', async () => {
-    const createdUser = await createUser(userHelper.initialUsers[0])
+    test('returned blog has its user populated', async () => {
+      const validBlogToPost = helper.initialBlogs[0]
+      const validToken = generateToken(createdUser.username, createdUser._id)
+      const response = await api
+        .post('/api/blogs')
+        .set({ 'Authorization': `Bearer ${validToken}` })
+        .send(validBlogToPost)
+      
+      const createdBlog = response.body
+      expect(createdBlog.user).toEqual({
+        username : createdUser.username,
+        name: createdUser.name,
+        id: createdUser._id.toString()
+      })
+    })
 
-    const invalidBlogToPost = {
-      'author' : 'idiot posting without title',
-      'url' : 'somewhere',
-    }
+    test('a blog without title is bad request', async () => {
+      const invalidBlogToPost = {
+        'author' : 'idiot posting without title',
+        'url' : 'somewhere',
+      }
 
-    const validToken = generateToken(createdUser.username, createdUser._id)
-    const response = await api
-      .post('/api/blogs')
-      .set({ 'Authorization': `Bearer ${validToken}` })
-      .send(invalidBlogToPost)
-      .expect(400)
-      .expect('Content-Type', /application\/json/)
+      const validToken = generateToken(createdUser.username, createdUser._id)
+      const response = await api
+        .post('/api/blogs')
+        .set({ 'Authorization': `Bearer ${validToken}` })
+        .send(invalidBlogToPost)
+        .expect(400)
+        .expect('Content-Type', /application\/json/)
 
-    expect(response.body.error).toBe('missing title or url')
-  })
+      expect(response.body.error).toBe('missing title or url')
+    })
 
-  test('a blog without url is bad request', async () => {
-    const createdUser = await createUser(userHelper.initialUsers[0])
+    test('a blog without url is bad request', async () => {
+      const invalidBlogToPost = {
+        'title': 'when posting this, it is bad',
+        'author' : 'idiot posting without title',
+      }
 
-    const invalidBlogToPost = {
-      'title': 'when posting this, it is bad',
-      'author' : 'idiot posting without title',
-    }
+      const validToken = generateToken(createdUser.username, createdUser._id)
+      const response = await api
+        .post('/api/blogs')
+        .set({ 'Authorization': `Bearer ${validToken}` })
+        .send(invalidBlogToPost)
+        .expect(400)
+        .expect('Content-Type', /application\/json/)
 
-    const validToken = generateToken(createdUser.username, createdUser._id)
-    const response = await api
-      .post('/api/blogs')
-      .set({ 'Authorization': `Bearer ${validToken}` })
-      .send(invalidBlogToPost)
-      .expect(400)
-      .expect('Content-Type', /application\/json/)
-
-    expect(response.body.error).toBe('missing title or url')
+      expect(response.body.error).toBe('missing title or url')
+    })
   })
 })
-
 // todo with users and populate
 /*
 describe('get all', () => {
