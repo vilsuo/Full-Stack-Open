@@ -6,7 +6,7 @@ import blogService from '../services/blogs'
 
 // add url as hyperlink
 
-const Blog = ({ blogData }) => {
+const Blog = ({ removeBlog, blogData, username }) => {
   const [blog, setBlog] = useState(blogData)
   const [showAll, setShowAll] = useState(false)
 
@@ -33,18 +33,54 @@ const Blog = ({ blogData }) => {
     }
   }
 
+  const handleRemove = async () => {
+    try {
+      const message = `Remove blog ${blog.title} by ${blog.author}`
+      if (window.confirm(message)) {
+        await blogService.remove(blog.id)
+        console.log('removed')
+
+        // remove from all blogs
+        removeBlog(blog)
+      }
+    } catch (exception) {
+      console.log('error', exception)
+    }
+  }
+
   const text = showAll ? 'hide' : 'view'
+
+  const removeButton = () => {
+    if (username !== blog.user.username) {
+      return null
+    } else {
+      return <button onClick={handleRemove}>remove</button>
+    }
+  }
+
+  const info = () => {
+    if (!showAll) {
+      return null
+    } else {
+      return (
+        <div>
+          {blog.url}<br/>
+          likes {blog.likes}
+          <button onClick={handleLike}>like</button><br/>
+          {blog.user.name}<br/>
+          {removeButton()}
+        </div>
+      )
+    }
+  }
 
   return (
     <div style={blogStyle}>
-      {blog.title} {blog.author}
-      <button onClick={toggleDetails}>{text}</button><br/>
-      { showAll && <>
-        {blog.url}<br/>
-        likes {blog.likes}
-        <button onClick={handleLike}>like</button><br/>
-        {blog.user.name}
-      </>}
+      <div>
+        {blog.title} {blog.author}
+        <button onClick={toggleDetails}>{text}</button><br/>
+      </div>
+      { showAll && info() }
     </div>  
   )
 }

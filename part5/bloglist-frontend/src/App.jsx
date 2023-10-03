@@ -9,6 +9,9 @@ import Blog from './components/Blog'
 // notification clears too quickly if old notification message
 // is still present
 
+// liking blog does not sort the array. only refreshing show the
+// blogs in correct order (bad or not?)
+
 const App = () => {
   const [user, setUser] = useState(null)
   const [blogs, setBlogs] = useState([])
@@ -38,8 +41,12 @@ const App = () => {
     setMessageAndClearIt('logged out')
   }
 
-  const addBlog = blog => {
-    setBlogs(blogs.concat(blog))
+  const addBlog = blogToAdd => {
+    setBlogs(blogs.concat(blogToAdd))
+  }
+
+  const removeBlog = blogToRemove => {
+    setBlogs(blogs.filter(blog => blog.id !== blogToRemove.id))
   }
 
   const setMessageAndClearIt = newMessage => {
@@ -74,8 +81,13 @@ const App = () => {
       {blogs
         .sort((a, b) => b.likes - a.likes)
         .map(blog =>
-          <Blog key={blog.id} blogData={blog} />
-       )
+          <Blog
+            key={blog.id}
+            removeBlog={removeBlog}
+            blogData={blog}
+            username={user.username}
+          />
+        )
       }
 
     </div>
