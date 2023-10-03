@@ -12,11 +12,13 @@ const jwt = require('jsonwebtoken')
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog
     .find({})
+    .populate('user', { 'name': 1, 'username': 1 })
 
   response.json(blogs)
 })
 
-// - add populate to returned value?
+// test populate
+// populate user to the returned value
 blogsRouter.post('/', middleWare.userExtractor, async (request, response) => {
   const user = request.user
   if (!user) {
@@ -42,25 +44,31 @@ blogsRouter.post('/', middleWare.userExtractor, async (request, response) => {
   user.blogs = user.blogs.concat(savedBlog._id)
   await user.save()
 
+  await savedBlog.populate('user', { 'name': 1, 'username': 1 })
+
   response.status(201).json(savedBlog)
 })
 
 // TODO
-// - implement with token
+// - implement with token?
 // - test
 blogsRouter.put('/:id', async (request, response) => {
   const id = request.params.id
-  const likes = request.body.likes
 
-  if (!id || !likes) {
+  const updatedNote = await Blog.findByIdAndUpdate(
+    id,
+    request.body,
+    { new: true }
+  )
+
+  if (!updatedNote) {
     return response.status(400).send(
-      { error: 'id and likes must be present' }
+      { error: 'blog does not exist' }
     )
   }
 
-  const updatedNote = await Blog.findByIdAndUpdate(
-    id, { 'likes': likes}, { new: true }
-  )
+  await updatedNote.populate('user', { 'name': 1, 'username': 1 })
+
   response.json(updatedNote)
 })
 
