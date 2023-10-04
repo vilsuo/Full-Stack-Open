@@ -29,9 +29,16 @@ app.use(express.json())
 app.use(middleWare.tokenExtractor)
 app.use(middleWare.requestLogger)
 
+// application takes the routers into use
 app.use('/api/login', loginRouter)
 app.use('/api/blogs', blogsRouter)
 app.use('/api/users', usersRouter)
+
+// take this route into use only in test-mode
+if (process.env.NODE_ENV === 'test') {
+  const testingRouter = require('./controller/testing')
+  app.use('/api/testing', testingRouter)
+}
 
 // after routes
 app.use(middleWare.unknownEndpoint)
