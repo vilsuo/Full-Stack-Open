@@ -29,7 +29,7 @@ const Blog = ({ updateBlog, removeBlog, blog, username }) => {
 
   const removeButton = () => {
     return username === blog.user.username
-      ? <button onClick={handleRemove}>remove</button>
+      ? <button id='remove-blog-button' onClick={handleRemove}>remove</button>
       : null
   }
 
@@ -44,7 +44,7 @@ const Blog = ({ updateBlog, removeBlog, blog, username }) => {
       <div>
         <span>{blog.url}</span><br/>
         <span>likes {blog.likes}</span>
-        <button onClick={handleLike}>like</button><br/>
+        <button id='like-blog-button' onClick={handleLike}>like</button><br/>
         <span>{blog.user.name}</span><br/>
         { removeButton() }
       </div>
@@ -53,10 +53,8 @@ const Blog = ({ updateBlog, removeBlog, blog, username }) => {
 
   return (
     <div style={blogStyle}>
-      <div>
-        <span>{blog.title} {blog.author}</span>
-        { toggleButton() }
-      </div>
+      <span>{blog.title} {blog.author}</span>
+      { toggleButton() }
       { showAll && details() }
     </div>
   )

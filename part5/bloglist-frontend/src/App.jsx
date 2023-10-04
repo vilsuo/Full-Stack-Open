@@ -38,7 +38,6 @@ const App = () => {
     setUser(null)
     blogService.setToken(null)
     window.localStorage.removeItem('loggedBlogAppUser')
-    setMessageAndClearIt('logged out')
   }
 
   const addBlog = async blogToAdd => {
