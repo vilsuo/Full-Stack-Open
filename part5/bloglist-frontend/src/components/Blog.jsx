@@ -8,14 +8,6 @@ import { useState } from 'react'
 const Blog = ({ updateBlog, removeBlog, blog, username }) => {
   const [showAll, setShowAll] = useState(false)
 
-  const blogStyle = {
-    paddingTop: 2,
-    paddingLeft: 2,
-    border: 'solid',
-    borderWidth: 1,
-    marginBottom: 5
-  }
-
   const handleLike = async () => {
     await updateBlog(blog.id, { ...blog, 'likes': blog.likes + 1, 'user': blog.user.id })
   }
@@ -34,7 +26,7 @@ const Blog = ({ updateBlog, removeBlog, blog, username }) => {
   }
 
   const toggleButton = () => (
-    <button onClick={() => setShowAll(!showAll)}>
+    <button id='blog-view-button' onClick={() => setShowAll(!showAll)}>
       {showAll ? 'hide' : 'view'}
     </button>
   )
@@ -43,7 +35,7 @@ const Blog = ({ updateBlog, removeBlog, blog, username }) => {
     return (
       <div>
         <span>{blog.url}</span><br/>
-        <span>likes {blog.likes}</span>
+        <span id='blog-likes'>likes {blog.likes}</span>
         <button id='like-blog-button' onClick={handleLike}>like</button><br/>
         <span>{blog.user.name}</span><br/>
         { removeButton() }
@@ -52,7 +44,7 @@ const Blog = ({ updateBlog, removeBlog, blog, username }) => {
   }
 
   return (
-    <div style={blogStyle}>
+    <div className='blog'>
       <span>{blog.title} {blog.author}</span>
       { toggleButton() }
       { showAll && details() }

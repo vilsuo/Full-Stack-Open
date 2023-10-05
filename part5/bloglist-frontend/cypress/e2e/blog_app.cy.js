@@ -64,50 +64,92 @@ describe('Blog app', function() {
     })
 
     it('user can logout', function() {
-      cy.contains('logout').click()
+      cy.logout()
       cy.contains('Login to the application')
     })
 
-    describe('When a blog has been created', function() {
+    describe('When blogs have been created', function() {
       beforeEach(function() {
+        cy.createBlog({
+          title: 'Introduction to Cypress',
+          author: 'cypress',
+          url: 'https://docs.cypress.io/guides/core-concepts/introduction-to-cypress#Cypress-Can-Be-Simple-Sometimes'
+        })
+
         cy.createBlog({
           title: 'E2E testing with Cypress',
           author: 'fullstack',
-          url: 'fullstackopen'
+          url: 'https://fullstackopen.com/en/part5/end_to_end_testing'
+        })
+
+        cy.createBlog({
+          title: 'Writing and Organizing Tests',
+          author: 'cypress',
+          url: 'https://docs.cypress.io/guides/core-concepts/writing-and-organizing-tests'
         })
       })
 
-      it('blog details can be viewed', function() {
-        cy.contains('E2E testing with Cypress fullstack').parent()
-          .find('button')
+      it('blog details can be toggled', function() {
+        cy.getBlogByTitle('E2E testing with Cypress')
+          .find('#blog-view-button')
+          .as('view-button')
+
+        cy.get('@view-button')
           .should('contain', 'view')
           .click()
+
+        cy.get('@view-button')
           .should('contain', 'hide')
+          .click()
+
+        cy.get('@view-button')
+          .should('contain', 'view')
       })
 
-      it('creator of the blog can liked the blog', function() {
+      it('creator of the blog can remove the blog', function() {
+        cy.removeBlogByTitle('E2E testing with Cypress')
+
         cy.contains('E2E testing with Cypress fullstack')
-          .parent().as('blog')
-          .find('button').click()
+          .should('not.exist')
+      })
+
+      it('creator of the blog can like the blog', function() {
+        cy.viewBlogByTitle('E2E testing with Cypress')
+          .as('blog')
 
         cy.get('@blog').contains('likes 0')
 
-        cy.get('@blog')
-          .get('#like-blog-button').click()
+        cy.get('@blog').get('#like-blog-button').click()
 
         cy.get('@blog').contains('likes 1')
       })
 
-      it('creator of the blog can remove the blog', function() {
-        cy.contains('E2E testing with Cypress fullstack')
-          .parent().as('blog')
-          .find('button').click()
+      describe('when liked', function() {
+        it('the blogs are sorted based on their likes', function() {
+          cy.checkBlogOrder(['Introduction to Cypress', 'E2E testing with Cypress', 'Writing and Organizing Tests'])
 
-        cy.get('@blog')
-          .get('#remove-blog-button').click()
+          cy.likeBlogByTitle('E2E testing with Cypress')
+          cy.checkBlogOrder(['E2E testing with Cypress', 'Introduction to Cypress', 'Writing and Organizing Tests'])
 
-        cy.contains('E2E testing with Cypress fullstack')
-          .should('not.exist')
+          cy.likeBlogByTitle('Introduction to Cypress')
+          cy.checkBlogOrder(['E2E testing with Cypress', 'Introduction to Cypress', 'Writing and Organizing Tests'])
+
+          cy.likeBlogByTitle('Introduction to Cypress')
+          cy.checkBlogOrder(['Introduction to Cypress', 'E2E testing with Cypress', 'Writing and Organizing Tests'])
+        })
+      })
+
+      describe('when other user logs in', function() {
+        beforeEach(function() {
+          cy.logout()
+          cy.login({ username: 'matska', password: 'qwerty123' })
+        })
+
+        it('can not see the remove button of blogs by other users', function() {
+          cy.viewBlogByTitle('E2E testing with Cypress fullstack')
+            .find('#remove-blog-button')
+            .should('not.exist')
+        })
       })
     })
   })
