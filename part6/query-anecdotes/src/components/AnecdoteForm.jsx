@@ -4,12 +4,14 @@ import { createAnecdote } from "../../requests"
 const AnecdoteForm = () => {
   const queryClient = useQueryClient()
 
-  const newAnecdoteMutation = useMutation(createAnecdote, {
-    // In order to render a new anecdote as well, we need to tell
-    // React Query that the old result of the query whose key is the
-    // string anecdotes should be invalidated.
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['anecdotes'] })
+  const newAnecdoteMutation = useMutation({
+    mutationFn: createAnecdote,
+    // That is, in the onSuccess callback, the queryClient object first reads the existing
+    // anecdotes state of the query and updates it by adding a new anecdote, which is
+    // obtained as a parameter of the callback function.
+    onSuccess: (newAnecdote) => {
+      //const anecdotes = queryClient.getQueryData('anecdotes')
+      queryClient.setQueryData(['anecdotes'], anecdotes => anecdotes.concat(newAnecdote))
     }
   })
 

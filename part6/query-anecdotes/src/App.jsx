@@ -4,20 +4,34 @@ import Notification from './components/Notification'
 import { getAnecdotes, updateAnecdote } from '../requests'
 
 const App = () => {
+  // The return value of the useQuery function is an object that
+  // indicates the status of the query
+  const result = useQuery({
+    queryKey: ['anecdotes'],
+    queryFn: getAnecdotes,
+    // default functionality of React Query's queries is that the queries (whose status is
+    // stale) are updated when window focus, i.e. the active element of the application's
+    // user interface, changes
+    refetchOnWindowFocus: false
+  })
+
   const queryClient = useQueryClient()
 
+  // In order to render a new anecdote as well, we need to tell
+  // React Query that the old result of the query whose key is the
+  // string anecdotes should be invalidated.
   const voteAnecdoteMutation = useMutation(updateAnecdote, {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['anecdotes'] })
     }
   })
 
-  // The return value of the useQuery function is an object that
-  // indicates the status of the query
-  const result = useQuery({
-    queryKey: ['anecdotes'],
-    queryFn: getAnecdotes
-  })
+  const handleVote = anecdote => {
+    voteAnecdoteMutation.mutate({
+      id: anecdote.id,
+      newObject: { ...anecdote, votes: anecdote.votes + 1 }
+    })
+  }
 
   // When the request is completed, the component is rendered again
   if (result.isLoading) {
@@ -33,13 +47,6 @@ const App = () => {
   }
 
   const anecdotes = result.data
-
-  const handleVote = anecdote => {
-    voteAnecdoteMutation.mutate({
-      id: anecdote.id,
-      newObject: { ...anecdote, votes: anecdote.votes + 1 }
-    })
-  }
 
   return (
     <div>
