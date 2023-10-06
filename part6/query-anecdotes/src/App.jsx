@@ -1,7 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import AnecdoteForm from './components/AnecdoteForm'
 import Notification from './components/Notification'
-import { getAnecdotes, updateAnecdote } from '../requests'
+import AnecdoteList from './components/AnecdoteList'
+import { getAnecdotes } from '../requests'
+import { MessageContextProvider} from './components/MessageContext'
 
 const App = () => {
   // The return value of the useQuery function is an object that
@@ -14,24 +16,6 @@ const App = () => {
     // user interface, changes
     refetchOnWindowFocus: false
   })
-
-  const queryClient = useQueryClient()
-
-  // In order to render a new anecdote as well, we need to tell
-  // React Query that the old result of the query whose key is the
-  // string anecdotes should be invalidated.
-  const voteAnecdoteMutation = useMutation(updateAnecdote, {
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['anecdotes'] })
-    }
-  })
-
-  const handleVote = anecdote => {
-    voteAnecdoteMutation.mutate({
-      id: anecdote.id,
-      newObject: { ...anecdote, votes: anecdote.votes + 1 }
-    })
-  }
 
   // When the request is completed, the component is rendered again
   if (result.isLoading) {
@@ -49,24 +33,14 @@ const App = () => {
   const anecdotes = result.data
 
   return (
-    <div>
+    <>
       <h3>Anecdote app</h3>
-    
-      <Notification />
-      <AnecdoteForm />
-    
-      {anecdotes.map(anecdote =>
-        <div key={anecdote.id}>
-          <div>
-            {anecdote.content}
-          </div>
-          <div>
-            has {anecdote.votes}
-            <button onClick={() => handleVote(anecdote)}>vote</button>
-          </div>
-        </div>
-      )}
-    </div>
+      <MessageContextProvider>
+        <Notification />
+        <AnecdoteForm />
+        <AnecdoteList anecdotes={anecdotes} />
+      </MessageContextProvider>
+    </>
   )
 }
 
