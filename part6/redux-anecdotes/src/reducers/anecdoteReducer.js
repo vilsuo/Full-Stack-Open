@@ -1,15 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-const getId = () => (100000 * Math.random()).toFixed(0)
-
-const asObject = (anecdote) => {
-  return {
-    content: anecdote,
-    id: getId(),
-    votes: 0
-  }
-}
-
 //const initialState = anecdotesAtStart.map(asObject)
 const anecdotesSlice = createSlice({
   //  defines the prefix which is used in the action's type values
@@ -17,7 +7,7 @@ const anecdotesSlice = createSlice({
   initialState: [],
   reducers: {
     createAnecdote(state, action) {
-      return [ ...state, asObject(action.payload) ]
+      return [ ...state, action.payload ]
     },
     voteAnecdote(state, action) {
       const id = action.payload
@@ -31,7 +21,6 @@ const anecdotesSlice = createSlice({
       return action.payload
     }
   }
-
 })
 
 export const { createAnecdote, voteAnecdote, setAnecdotes } = anecdotesSlice.actions
