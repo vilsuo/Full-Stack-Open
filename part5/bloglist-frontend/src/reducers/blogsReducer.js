@@ -1,9 +1,10 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import blogsService from '../services/blogs'
-import { showNotification } from './notificationReducer'
 
 const initialState = []
 
+// remove reducers or make extraReducers as reducres?
+// implement common rejected handler?
 const blogsSlice = createSlice({
   name: 'blogs',
   initialState,
@@ -11,14 +12,6 @@ const blogsSlice = createSlice({
     setBlogs(state, action) {
       const blogs = action.payload
       return blogs
-    },
-    appendBlog(state, action) {
-      const blog = action.payload
-      return state.concat(blog)
-    },
-    removeBlog(state, action) {
-      const id = action.payload
-      return state.filter(blog => blog.id !== id)
     }
   },
   extraReducers: (builder) => {
@@ -31,8 +24,35 @@ const blogsSlice = createSlice({
         //console.log('rejected', action)
         return state
       })
+      .addCase(deleteBlog.fulfilled, (state, action) => {
+        const id = action.payload
+        return state.filter(blog => blog.id !== id)
+      })
+      .addCase(deleteBlog.rejected, (state, action) => {
+        return state
+      })
+      .addCase(updateBlog.fulfilled, (state, action) => {
+        const result = action.payload
+        return state.map(blog => (blog.id !== result.id) ? blog : result)
+      })
+      .addCase(updateBlog.rejected, (state, action) => {
+        return state
+      })
   }
 })
+
+export const { setBlogs } = blogsSlice.actions
+
+export const initializeBlogs = () => {
+  return async dispatch => {
+    try {
+      const blogs = await blogsService.getAll()
+      dispatch(setBlogs(blogs))
+    } catch (exception) {
+      
+    }
+  }
+}
 
 export const createBlog = createAsyncThunk(
   // A string that will be used to generate additional Redux action type
@@ -50,43 +70,28 @@ export const createBlog = createAsyncThunk(
   }
 )
 
-/*
-export const createBlog = (blog) => {
-  return async dispatch => {
-    try {
-      const createdBlog = await blogsService.create(blog)
-      dispatch(appendBlog(createdBlog))
-    } catch (error) {
-      dispatch(showNotification(error.response.data.error))
-    }
-  }
-}
-*/
-
-export const {
-  setBlogs, appendBlog, removeBlog
-} = blogsSlice.actions
-
-export const initializeBlogs = () => {
-  return async dispatch => {
-    try {
-      const blogs = await blogsService.getAll()
-      dispatch(setBlogs(blogs))
-    } catch (exception) {
-      
-    }
-  }
-}
-
-export const deleteBlog = (id) => {
-  return async dispatch => {
+export const deleteBlog = createAsyncThunk(
+  'blogs/deleteBlog',
+  async (id, thunkApi) => {
     try {
       await blogsService.remove(id)
-      dispatch(removeBlog(id))
-    } catch (exception) {
-
+      return id
+    } catch (error) {
+      return thunkApi.rejectWithValue(error.response.data.error)
     }
   }
-}
+)
+
+export const updateBlog = createAsyncThunk(
+  'blogs/updateBlog',
+  async ({ id, newValues }, thunkApi) => {
+    try {
+      const updatedBlog = await blogsService.update(id, newValues)
+      return updatedBlog
+    } catch (error) {
+      return thunkApi.rejectWithValue(error.response.data.error)
+    }
+  }
+)
 
 export default blogsSlice.reducer

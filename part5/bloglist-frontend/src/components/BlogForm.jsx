@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { appendBlog, createBlog } from '../reducers/blogsReducer'
+import { createBlog } from '../reducers/blogsReducer'
 import { useDispatch } from 'react-redux'
 import { showNotification } from '../reducers/notificationReducer'
 
