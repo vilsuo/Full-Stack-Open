@@ -6,6 +6,10 @@ import BlogForm from './components/BlogForm'
 import Togglable from './components/Togglable'
 import Blog from './components/Blog'
 
+import { createNotification, resetNotification, showNotification } from './reducers/notificationReducer'
+
+import { useSelector, useDispatch } from 'react-redux'
+
 // notification clears too quickly if old notification message
 // is still present
 
@@ -15,7 +19,8 @@ import Blog from './components/Blog'
 const App = () => {
   const [user, setUser] = useState(null)
   const [blogs, setBlogs] = useState([])
-  const [message, setMessage] = useState(null)
+
+  const dispatch = useDispatch()
 
   // see if user is saved to local storage
   useEffect(() => {
@@ -43,12 +48,12 @@ const App = () => {
       const createdBlog = await blogService.create(blogToAdd)
       setBlogs(blogs.concat(createdBlog))
 
-      setMessageAndClearIt(
+      dispatch(showNotification(
         `a new blog ${createdBlog.title} by ${createdBlog.author} added`,
-      )
+      ))
       return true
     } catch (exception) {
-      setMessageAndClearIt(exception.response.data.error)
+      dispatch(showNotification(exception.response.data.error))
       return false
     }
   }
@@ -74,21 +79,14 @@ const App = () => {
     }
   }
 
-  const setMessageAndClearIt = (newMessage) => {
-    setMessage(newMessage)
-    setTimeout(() => {
-      setMessage(null)
-    }, 5000)
-  }
-
   if (user === null) {
-    return <LoginForm setUser={setUser} />
+    return <LoginForm setUser={setUser}/>
   }
 
   return (
     <div>
       <h2>blogs</h2>
-      <Notification message={message} />
+      <Notification />
       {user.name} logged in
       <button id="logout-button" onClick={handleLogout}>
         logout

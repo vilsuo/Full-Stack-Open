@@ -2,11 +2,13 @@ import { useState } from 'react'
 import blogService from '../services/blogs'
 import loginService from '../services/login'
 import Notification from './Notification'
+import { useDispatch } from 'react-redux'
+import { showNotification } from '../reducers/notificationReducer'
 
 const LoginForm = ({ setUser }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [message, setMessage] = useState(null)
+  const dispatch = useDispatch()
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -23,18 +25,14 @@ const LoginForm = ({ setUser }) => {
       setUser(user)
       setUsername('')
       setPassword('')
-      setMessage(null)
     } catch (exception) {
-      setMessage(exception.response.data.error)
-      setTimeout(() => {
-        setMessage(null)
-      }, 5000)
+      dispatch(showNotification(exception.response.data.error))
     }
   }
 
   return (
     <div id="login-form">
-      <Notification id="login-form-notification" message={message} />
+      <Notification id="login-form-notification" />
       <h2>Login to the application</h2>
       <form onSubmit={handleLogin}>
         <label htmlFor="login-username-input">
