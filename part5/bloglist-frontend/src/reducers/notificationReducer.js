@@ -11,14 +11,15 @@ const notificationSlice = createSlice({
     },
     resetNotification(state, action) {
       return null
-    }
-  }
+    },
+  },
 })
 
-export const { createNotification, resetNotification } = notificationSlice.actions
+export const { createNotification, resetNotification } =
+  notificationSlice.actions
 
 export const showNotification = (message) => {
-  return dispatch => {
+  return (dispatch) => {
     dispatch(createNotification(message))
     setTimeout(() => {
       dispatch(resetNotification())

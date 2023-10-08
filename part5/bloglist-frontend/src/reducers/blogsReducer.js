@@ -12,48 +12,45 @@ const blogsSlice = createSlice({
     setBlogs(state, action) {
       const blogs = action.payload
       return blogs
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
       .addCase(createBlog.fulfilled, (state, action) => {
-        //console.log('added', action.payload)
         return state.concat(action.payload)
       })
       .addCase(createBlog.rejected, (state, action) => {
-        //console.log('rejected', action)
         return state
       })
       .addCase(deleteBlog.fulfilled, (state, action) => {
         const id = action.payload
-        return state.filter(blog => blog.id !== id)
+        return state.filter((blog) => blog.id !== id)
       })
       .addCase(deleteBlog.rejected, (state, action) => {
         return state
       })
       .addCase(updateBlog.fulfilled, (state, action) => {
         const result = action.payload
-        return state.map(blog => (blog.id !== result.id) ? blog : result)
+        return state.map((blog) => (blog.id !== result.id ? blog : result))
       })
       .addCase(updateBlog.rejected, (state, action) => {
         return state
       })
-  }
+  },
 })
 
 export const { setBlogs } = blogsSlice.actions
 
 export const initializeBlogs = () => {
-  return async dispatch => {
+  return async (dispatch) => {
     try {
       const blogs = await blogsService.getAll()
       dispatch(setBlogs(blogs))
-    } catch (exception) {
-      
-    }
+    } catch (exception) {}
   }
 }
 
+// todo error handler?
 export const createBlog = createAsyncThunk(
   // A string that will be used to generate additional Redux action type
   // constants, representing the lifecycle of an async request
@@ -67,7 +64,7 @@ export const createBlog = createAsyncThunk(
     } catch (error) {
       return thunkApi.rejectWithValue(error.response.data.error)
     }
-  }
+  },
 )
 
 export const deleteBlog = createAsyncThunk(
@@ -79,7 +76,7 @@ export const deleteBlog = createAsyncThunk(
     } catch (error) {
       return thunkApi.rejectWithValue(error.response.data.error)
     }
-  }
+  },
 )
 
 export const updateBlog = createAsyncThunk(
@@ -91,7 +88,7 @@ export const updateBlog = createAsyncThunk(
     } catch (error) {
       return thunkApi.rejectWithValue(error.response.data.error)
     }
-  }
+  },
 )
 
 export default blogsSlice.reducer

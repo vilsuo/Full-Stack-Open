@@ -28,9 +28,11 @@ const BlogForm = () => {
       // payload created by rejectWithValue from a rejected action
       .unwrap()
       .then((addedBlog) => {
-        dispatch(showNotification(
-          `blog ${addedBlog.title} by ${addedBlog.author} added`
-        ))
+        dispatch(
+          showNotification(
+            `blog ${addedBlog.title} by ${addedBlog.author} added`,
+          ),
+        )
         setTitle('')
         setAuthor('')
         setUrl('')

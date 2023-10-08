@@ -3,8 +3,9 @@ import Blog from './Blog'
 import { deleteBlog, updateBlog } from '../reducers/blogsReducer'
 import { showNotification } from '../reducers/notificationReducer'
 
-const BlogList = ({ user }) => {
-  const blogs = useSelector(state => state.blogs)
+const BlogList = () => {
+  const blogs = useSelector((state) => state.blogs)
+  const user = useSelector((state) => state.user)
   const dispatch = useDispatch()
 
   const handleRemove = async (blog) => {
@@ -13,22 +14,23 @@ const BlogList = ({ user }) => {
       dispatch(deleteBlog(blog.id))
         .unwrap()
         .then(() => {
-          dispatch(showNotification(
-            `blog ${blog.title} by ${blog.author} deleted`
-          ))
+          dispatch(
+            showNotification(`blog ${blog.title} by ${blog.author} deleted`),
+          )
         })
         .catch((rejectedValueError) => {
-          // handle error here
           dispatch(showNotification(rejectedValueError))
         })
     }
   }
 
   const handleLike = async (blog) => {
-    dispatch(updateBlog({
-      id: blog.id,
-      newValues: { ...blog, likes: blog.likes + 1, user: blog.user.id }
-    }))
+    dispatch(
+      updateBlog({
+        id: blog.id,
+        newValues: { ...blog, likes: blog.likes + 1, user: blog.user.id },
+      }),
+    )
       .unwrap()
       .then(() => {})
       .catch((rejectedValueError) => {
