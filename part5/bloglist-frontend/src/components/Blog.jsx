@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useDispatch } from 'react-redux'
 
 // displays name of the user the blog belongs to, but
 // creating users does not require to give the name
@@ -7,6 +8,7 @@ import { useState } from 'react'
 
 const Blog = ({ updateBlog, removeBlog, blog, username }) => {
   const [showAll, setShowAll] = useState(false)
+  const dispatch = useDispatch()
 
   const handleLike = async () => {
     await updateBlog(blog.id, {

@@ -4,11 +4,11 @@ import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
 import Togglable from './components/Togglable'
-import Blog from './components/Blog'
 
-import { createNotification, resetNotification, showNotification } from './reducers/notificationReducer'
+import { initializeBlogs } from './reducers/blogsReducer'
 
-import { useSelector, useDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux'
+import BlogList from './components/BlogList'
 
 // notification clears too quickly if old notification message
 // is still present
@@ -18,7 +18,7 @@ import { useSelector, useDispatch } from 'react-redux'
 
 const App = () => {
   const [user, setUser] = useState(null)
-  const [blogs, setBlogs] = useState([])
+  //const [blogs, setBlogs] = useState([])
 
   const dispatch = useDispatch()
 
@@ -34,7 +34,7 @@ const App = () => {
 
   // get all blogs
   useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs))
+    dispatch(initializeBlogs())
   }, [])
 
   const handleLogout = () => {
@@ -43,22 +43,7 @@ const App = () => {
     window.localStorage.removeItem('loggedBlogAppUser')
   }
 
-  const addBlog = async (blogToAdd) => {
-    try {
-      const createdBlog = await blogService.create(blogToAdd)
-      setBlogs(blogs.concat(createdBlog))
-
-      dispatch(showNotification(
-        `a new blog ${createdBlog.title} by ${createdBlog.author} added`,
-      ))
-      return true
-    } catch (exception) {
-      dispatch(showNotification(exception.response.data.error))
-      return false
-    }
-  }
-
-  // todo set message
+  /*
   const updateBlog = async (id, newBlogValues) => {
     try {
       const updatedBlog = await blogService.update(id, newBlogValues)
@@ -68,7 +53,6 @@ const App = () => {
     }
   }
 
-  // todo set message
   const removeBlog = async (id) => {
     console.log('blogToRemove')
     try {
@@ -78,6 +62,7 @@ const App = () => {
       console.log('exception in remove', exception)
     }
   }
+  */
 
   if (user === null) {
     return <LoginForm setUser={setUser}/>
@@ -92,8 +77,10 @@ const App = () => {
         logout
       </button>
       <Togglable buttonLabel="create new blog">
-        <BlogForm addBlog={addBlog} />
+        <BlogForm />
       </Togglable>
+      <BlogList user={user} />
+      {/*
       {blogs
         .sort((a, b) => b.likes - a.likes)
         .map((blog) => (
@@ -105,6 +92,7 @@ const App = () => {
             username={user.username}
           />
         ))}
+        */}
     </div>
   )
 }
