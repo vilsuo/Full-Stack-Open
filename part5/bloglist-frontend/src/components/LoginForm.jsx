@@ -15,9 +15,7 @@ const LoginForm = ({ setUser }) => {
       const user = await loginService.login({ username, password })
 
       // add user to local storage
-      window.localStorage.setItem(
-        'loggedBlogAppUser', JSON.stringify(user)
-      )
+      window.localStorage.setItem('loggedBlogAppUser', JSON.stringify(user))
 
       // set token so user can post blogs etc.
       blogService.setToken(user.token)
@@ -26,7 +24,6 @@ const LoginForm = ({ setUser }) => {
       setUsername('')
       setPassword('')
       setMessage(null)
-
     } catch (exception) {
       setMessage(exception.response.data.error)
       setTimeout(() => {
@@ -36,29 +33,33 @@ const LoginForm = ({ setUser }) => {
   }
 
   return (
-    <div id='login-form'>
-      <Notification id='login-form-notification' message={message} />
+    <div id="login-form">
+      <Notification id="login-form-notification" message={message} />
       <h2>Login to the application</h2>
       <form onSubmit={handleLogin}>
-        <label htmlFor='login-username-input'>
+        <label htmlFor="login-username-input">
           <span>username</span>
           <input
-            id='login-username-input'
-            type='text'
+            id="login-username-input"
+            type="text"
             value={username}
             onChange={({ target }) => setUsername(target.value)}
           />
-        </label><br/>
-        <label htmlFor='login-password-input'>
+        </label>
+        <br />
+        <label htmlFor="login-password-input">
           <span>password</span>
           <input
-            id='login-password-input'
-            type='password'
+            id="login-password-input"
+            type="password"
             value={password}
             onChange={({ target }) => setPassword(target.value)}
           />
-        </label><br/>
-        <button id='login-button' type='submit'>login</button>
+        </label>
+        <br />
+        <button id="login-button" type="submit">
+          login
+        </button>
       </form>
     </div>
   )

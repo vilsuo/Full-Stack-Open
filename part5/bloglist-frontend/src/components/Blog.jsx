@@ -9,7 +9,11 @@ const Blog = ({ updateBlog, removeBlog, blog, username }) => {
   const [showAll, setShowAll] = useState(false)
 
   const handleLike = async () => {
-    await updateBlog(blog.id, { ...blog, 'likes': blog.likes + 1, 'user': blog.user.id })
+    await updateBlog(blog.id, {
+      ...blog,
+      likes: blog.likes + 1,
+      user: blog.user.id,
+    })
   }
 
   const handleRemove = async () => {
@@ -20,13 +24,15 @@ const Blog = ({ updateBlog, removeBlog, blog, username }) => {
   }
 
   const removeButton = () => {
-    return username === blog.user.username
-      ? <button id='remove-blog-button' onClick={handleRemove}>remove</button>
-      : null
+    return username === blog.user.username ? (
+      <button id="remove-blog-button" onClick={handleRemove}>
+        remove
+      </button>
+    ) : null
   }
 
   const toggleButton = () => (
-    <button id='blog-view-button' onClick={() => setShowAll(!showAll)}>
+    <button id="blog-view-button" onClick={() => setShowAll(!showAll)}>
       {showAll ? 'hide' : 'view'}
     </button>
   )
@@ -34,20 +40,27 @@ const Blog = ({ updateBlog, removeBlog, blog, username }) => {
   const details = () => {
     return (
       <div>
-        <span>{blog.url}</span><br/>
-        <span id='blog-likes'>likes {blog.likes}</span>
-        <button id='like-blog-button' onClick={handleLike}>like</button><br/>
-        <span>{blog.user.name}</span><br/>
-        { removeButton() }
+        <span>{blog.url}</span>
+        <br />
+        <span id="blog-likes">likes {blog.likes}</span>
+        <button id="like-blog-button" onClick={handleLike}>
+          like
+        </button>
+        <br />
+        <span>{blog.user.name}</span>
+        <br />
+        {removeButton()}
       </div>
     )
   }
 
   return (
-    <div className='blog'>
-      <span>{blog.title} {blog.author}</span>
-      { toggleButton() }
-      { showAll && details() }
+    <div className="blog">
+      <span>
+        {blog.title} {blog.author}
+      </span>
+      {toggleButton()}
+      {showAll && details()}
     </div>
   )
 }

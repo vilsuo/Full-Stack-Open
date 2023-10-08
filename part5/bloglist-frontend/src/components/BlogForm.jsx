@@ -8,7 +8,7 @@ const BlogForm = ({ addBlog }) => {
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
 
-  const handleSubmit = async event => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
 
     const wasAdded = await addBlog({ title, author, url })
@@ -20,40 +20,45 @@ const BlogForm = ({ addBlog }) => {
   }
 
   return (
-    <div id='create-blog-form'>
+    <div id="create-blog-form">
       <h2>create new</h2>
-      <form onSubmit={(handleSubmit)}>
+      <form onSubmit={handleSubmit}>
         <label>
           <span>title:</span>
           <input
-            id='create-blog-title-input'
-            type='text'
+            id="create-blog-title-input"
+            type="text"
             value={title}
-            placeholder='give title'
+            placeholder="give title"
             onChange={({ target }) => setTitle(target.value)}
           />
-        </label><br/>
+        </label>
+        <br />
         <label>
           <span>author:</span>
           <input
-            id='create-blog-author-input'
-            type='text'
+            id="create-blog-author-input"
+            type="text"
             value={author}
-            placeholder='give author'
+            placeholder="give author"
             onChange={({ target }) => setAuthor(target.value)}
           />
-        </label><br/>
+        </label>
+        <br />
         <label>
           <span>url:</span>
           <input
-            id='create-blog-url-input'
-            type='text'
+            id="create-blog-url-input"
+            type="text"
             value={url}
-            placeholder='give url'
+            placeholder="give url"
             onChange={({ target }) => setUrl(target.value)}
           />
-        </label><br/>
-        <button id='create-blog-button' type='submit'>create</button>
+        </label>
+        <br />
+        <button id="create-blog-button" type="submit">
+          create
+        </button>
       </form>
     </div>
   )

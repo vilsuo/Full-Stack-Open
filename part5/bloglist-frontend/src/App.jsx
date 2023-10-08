@@ -29,9 +29,7 @@ const App = () => {
 
   // get all blogs
   useEffect(() => {
-    blogService
-      .getAll()
-      .then(blogs => setBlogs(blogs))
+    blogService.getAll().then((blogs) => setBlogs(blogs))
   }, [])
 
   const handleLogout = () => {
@@ -40,13 +38,13 @@ const App = () => {
     window.localStorage.removeItem('loggedBlogAppUser')
   }
 
-  const addBlog = async blogToAdd => {
+  const addBlog = async (blogToAdd) => {
     try {
       const createdBlog = await blogService.create(blogToAdd)
       setBlogs(blogs.concat(createdBlog))
 
       setMessageAndClearIt(
-        `a new blog ${createdBlog.title} by ${createdBlog.author} added`
+        `a new blog ${createdBlog.title} by ${createdBlog.author} added`,
       )
       return true
     } catch (exception) {
@@ -59,26 +57,24 @@ const App = () => {
   const updateBlog = async (id, newBlogValues) => {
     try {
       const updatedBlog = await blogService.update(id, newBlogValues)
-      setBlogs(blogs.map(blog => blog.id !== id ? blog : updatedBlog))
-
+      setBlogs(blogs.map((blog) => (blog.id !== id ? blog : updatedBlog)))
     } catch (exception) {
       console.log('exception in update', exception)
     }
   }
 
   // todo set message
-  const removeBlog = async id => {
+  const removeBlog = async (id) => {
     console.log('blogToRemove')
     try {
       await blogService.remove(id)
-      setBlogs(blogs.filter(blog => blog.id !== id))
-
+      setBlogs(blogs.filter((blog) => blog.id !== id))
     } catch (exception) {
       console.log('exception in remove', exception)
     }
   }
 
-  const setMessageAndClearIt = newMessage => {
+  const setMessageAndClearIt = (newMessage) => {
     setMessage(newMessage)
     setTimeout(() => {
       setMessage(null)
@@ -86,29 +82,23 @@ const App = () => {
   }
 
   if (user === null) {
-    return (
-      <LoginForm setUser={setUser} />
-    )
+    return <LoginForm setUser={setUser} />
   }
 
   return (
     <div>
       <h2>blogs</h2>
-
       <Notification message={message} />
-
       {user.name} logged in
-      <button id='logout-button' onClick={handleLogout}>logout</button>
-
-      <Togglable buttonLabel='create new blog'>
-        <BlogForm
-          addBlog={addBlog}
-        />
+      <button id="logout-button" onClick={handleLogout}>
+        logout
+      </button>
+      <Togglable buttonLabel="create new blog">
+        <BlogForm addBlog={addBlog} />
       </Togglable>
-
       {blogs
         .sort((a, b) => b.likes - a.likes)
-        .map(blog =>
+        .map((blog) => (
           <Blog
             key={blog.id}
             updateBlog={updateBlog}
@@ -116,9 +106,7 @@ const App = () => {
             blog={blog}
             username={user.username}
           />
-        )
-      }
-
+        ))}
     </div>
   )
 }

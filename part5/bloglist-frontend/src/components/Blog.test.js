@@ -17,23 +17,18 @@ describe('', () => {
     user: {
       name: 'ville',
       username: 'viltsu',
-      id: '123'
+      id: '123',
     },
-    id: '456'
+    id: '456',
   }
 
   beforeEach(() => {
-    container = render(
-      <Blog
-        updateBlog={updateBlog}
-        blog={blog}
-      />
-    ).container
+    container = render(<Blog updateBlog={updateBlog} blog={blog} />).container
   })
 
   test('default renders title and url, but not likes', () => {
     const titleAndAuthorElement = screen.getByText(
-      `${blog.title} ${blog.author}`
+      `${blog.title} ${blog.author}`,
     )
     expect(titleAndAuthorElement).toBeDefined()
 

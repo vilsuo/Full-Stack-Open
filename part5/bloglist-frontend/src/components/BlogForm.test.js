@@ -6,16 +6,12 @@ import BlogForm from './BlogForm'
 
 describe('filling all inputs with valid data', () => {
   let user
-  const addBlog = jest.fn(x => true)
+  const addBlog = jest.fn((x) => true)
 
   beforeEach(() => {
     user = userEvent.setup()
 
-    render(
-      <BlogForm
-        addBlog={addBlog}
-      />
-    )
+    render(<BlogForm addBlog={addBlog} />)
   })
 
   test('form submits input values to blog adding handler', async () => {
@@ -37,7 +33,7 @@ describe('filling all inputs with valid data', () => {
     expect(addBlog.mock.calls[0][0]).toEqual({
       title: 'Awesome blog',
       author: 'Me',
-      url: 'read-it-here'
+      url: 'read-it-here',
     })
   })
 })

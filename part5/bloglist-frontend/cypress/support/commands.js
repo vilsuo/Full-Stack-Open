@@ -26,7 +26,8 @@
 
 Cypress.Commands.add('login', ({ username, password }) => {
   cy.request('POST', `${Cypress.env('BACKEND')}/login`, {
-    username, password
+    username,
+    password,
   }).then(({ body }) => {
     localStorage.setItem('loggedBlogAppUser', JSON.stringify(body))
     cy.visit('')
@@ -39,8 +40,10 @@ Cypress.Commands.add('createBlog', ({ title, author, url }) => {
     method: 'POST',
     body: { title, author, url },
     headers: {
-      'Authorization': `Bearer ${JSON.parse(localStorage.getItem('loggedBlogAppUser')).token}`
-    }
+      Authorization: `Bearer ${
+        JSON.parse(localStorage.getItem('loggedBlogAppUser')).token
+      }`,
+    },
   })
 
   cy.visit('')
@@ -52,20 +55,19 @@ Cypress.Commands.add('logout', () => {
 
 // TODO implement all with bypassing the UI
 
-Cypress.Commands.add('checkBlogOrder', titles => {
+Cypress.Commands.add('checkBlogOrder', (titles) => {
   titles.forEach((title, index) => {
     cy.get('.blog').eq(index).should('contain', title)
   })
 })
 
-Cypress.Commands.add('getBlogByTitle', title => {
-  cy.contains(title)
-    .then(element => {
-      return element.parent()
-    })
+Cypress.Commands.add('getBlogByTitle', (title) => {
+  cy.contains(title).then((element) => {
+    return element.parent()
+  })
 })
 
-Cypress.Commands.add('viewBlogByTitle', title => {
+Cypress.Commands.add('viewBlogByTitle', (title) => {
   cy.getBlogByTitle(title)
     .as('blog')
     .find('#blog-view-button')
@@ -76,30 +78,24 @@ Cypress.Commands.add('viewBlogByTitle', title => {
       }
     })
 
-  cy.get('@blog')
-    .then(element => {
-      return element
-    })
+  cy.get('@blog').then((element) => {
+    return element
+  })
 })
 
 // todo wait for blog to be removed?
-Cypress.Commands.add('removeBlogByTitle', title => {
-  cy.viewBlogByTitle(title)
-    .as('blog')
-    .find('#remove-blog-button')
-    .click()
+Cypress.Commands.add('removeBlogByTitle', (title) => {
+  cy.viewBlogByTitle(title).as('blog').find('#remove-blog-button').click()
 })
 
-Cypress.Commands.add('likeBlogByTitle', title => {
+Cypress.Commands.add('likeBlogByTitle', (title) => {
   cy.viewBlogByTitle(title)
     .as('blog')
     .find('#blog-likes')
-    .then(function($value) {
+    .then(function ($value) {
       const likesBefore = $value.text()
 
-      cy.get('@blog')
-        .find('#like-blog-button')
-        .click()
+      cy.get('@blog').find('#like-blog-button').click()
 
       cy.get('@blog')
         .find('#blog-likes')
