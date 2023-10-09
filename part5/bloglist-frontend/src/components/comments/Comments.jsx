@@ -1,15 +1,29 @@
+import { useDispatch } from 'react-redux'
 import { useField } from '../../hooks'
+import { createComment } from '../../reducers/blogsReducer'
+import { showNotification } from '../../reducers/notificationReducer'
+import { updateUserBlog } from '../../reducers/usersReducer'
 
-const CommentForm = () => {
+const CommentForm = ({ blogId }) => {
   const commentField = useField(
     'text', 'form-comment-input', 'write your comment here'
   )
+  const dispatch = useDispatch()
 
   const handleSubmit = (event) => {
     event.preventDefault()
 
-    console.log('added comment', commentField.inputProps.value)
-    commentField.reset()
+    const comment = commentField.inputProps.value
+    dispatch(createComment({ id: blogId, comment }))
+      .unwrap()
+      .then(updatedBlog => {
+        dispatch(updateUserBlog(updatedBlog))
+        dispatch(showNotification(`comment ${comment} added`))
+        commentField.reset()
+      })
+      .catch(rejectedValueError => {
+        dispatch(showNotification(rejectedValueError))
+      })
   }
 
   return (
@@ -32,12 +46,12 @@ const CommentList = ({ comments }) => {
   )
 }
 
-const Comments = ({ comments, handleSubmit }) => {
+const Comments = ({ blog }) => {
   return (
     <div>
       <h3>comments</h3>
-      <CommentForm />
-      <CommentList comments={comments} />
+      <CommentForm blogId={blog.id} />
+      <CommentList comments={blog.comments} />
     </div>
   )
 }

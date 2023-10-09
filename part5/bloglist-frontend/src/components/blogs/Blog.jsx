@@ -82,7 +82,7 @@ const Blog = () => {
         <span>added by {blog.user.name}</span><br />
         {removeButton()}
       </div>
-      <Comments comments={blog.comments} />
+      <Comments blog={blog} />
     </div>
   )
 }

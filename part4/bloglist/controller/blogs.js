@@ -73,9 +73,11 @@ blogsRouter.put('/:id', async (request, response) => {
   response.json(updatedNote)
 })
 
+// todo test
 blogsRouter.post('/:id/comments', async (request, response) => {
   const id = request.params.id
-  const comment = request.body.comment
+  const { comment } = request.body
+
   const updatedNote = await Blog.findByIdAndUpdate(
     id,
     { $push: { comments: comment }},

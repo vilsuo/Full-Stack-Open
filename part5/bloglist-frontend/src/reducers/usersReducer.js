@@ -24,7 +24,7 @@ const usersSlice = createSlice({
     removeUserBlog(state, action) {
       const id = action.payload
       return state.map((user) => filterUserBlog(user, id))
-    },
+    }
   },
 })
 

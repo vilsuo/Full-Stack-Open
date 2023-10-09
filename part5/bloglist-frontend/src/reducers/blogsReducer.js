@@ -1,5 +1,9 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSlice, isRejectedWithValue  } from '@reduxjs/toolkit'
 import blogsService from '../services/blogs'
+
+const rejectionReducer = (state, action) => {
+  return state
+}
 
 const initialState = []
 
@@ -19,23 +23,34 @@ const blogsSlice = createSlice({
       .addCase(createBlog.fulfilled, (state, action) => {
         return state.concat(action.payload)
       })
-      .addCase(createBlog.rejected, (state, action) => {
-        return state
-      })
+      //.addCase(createBlog.rejected, (state, action) => {
+      //  return state
+      //})
       .addCase(deleteBlog.fulfilled, (state, action) => {
         const id = action.payload
         return state.filter((blog) => blog.id !== id)
       })
-      .addCase(deleteBlog.rejected, (state, action) => {
-        return state
-      })
+      //.addCase(deleteBlog.rejected, (state, action) => {
+      //  return state
+      //})
       .addCase(updateBlog.fulfilled, (state, action) => {
         const result = action.payload
         return state.map((blog) => (blog.id !== result.id ? blog : result))
       })
-      .addCase(updateBlog.rejected, (state, action) => {
-        return state
+      //.addCase(updateBlog.rejected, (state, action) => {
+      //  return state
+      //})
+      .addCase(createComment.fulfilled, (state, action) => {
+        const result = action.payload
+        return state.map((blog) => (blog.id !== result.id ? blog : result))
       })
+      //.addCase(createComment.rejected, (state, action) => {
+      //  return state
+      //})
+      .addMatcher(
+        isRejectedWithValue(createBlog, deleteBlog, updateBlog, createComment),
+        rejectionReducer
+      )
   },
 })
 
@@ -89,6 +104,18 @@ export const updateBlog = createAsyncThunk(
       return thunkApi.rejectWithValue(error.response.data.error)
     }
   },
+)
+
+export const createComment = createAsyncThunk(
+  'blogs/createComment',
+  async ({ id, comment }, thunkApi) => {
+    try {
+      const updatedBlog = await blogsService.createComment(id, comment)
+      return updatedBlog
+    } catch (error) {
+      return thunkApi.rejectWithValue(error.response.data.error)
+    }
+  }
 )
 
 export default blogsSlice.reducer
