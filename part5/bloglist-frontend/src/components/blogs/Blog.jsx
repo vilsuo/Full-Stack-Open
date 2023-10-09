@@ -4,11 +4,10 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { deleteBlog, updateBlog } from '../../reducers/blogsReducer'
 import { showNotification } from '../../reducers/notificationReducer'
 import { removeUserBlog, updateUserBlog } from '../../reducers/usersReducer'
+import Comments from '../comments/Comments'
 
 // displays name of the user the blog belongs to, but
 // creating users does not require to give the name
-
-// add url as hyperlink
 
 const Blog = () => {
   const dispatch = useDispatch()
@@ -75,17 +74,15 @@ const Blog = () => {
 
   return (
     <div>
-      <h2>
-        {blog.title} {blog.author}
-      </h2>
-      <a href={blog.url}>{blog.url}</a>
-      <br />
-      <span id="blog-likes">{blog.likes} likes</span>
-      {likeButton()}
-      <br />
-      added by {blog.user.name}
-      <br />
-      {removeButton()}
+      <h2>{blog.title} {blog.author}</h2>
+      <div>
+        <a href={blog.url}>{blog.url}</a><br />
+        <span id="blog-likes">{blog.likes} likes</span>
+        {likeButton()}<br />
+        <span>added by {blog.user.name}</span><br />
+        {removeButton()}
+      </div>
+      <Comments comments={blog.comments} />
     </div>
   )
 }

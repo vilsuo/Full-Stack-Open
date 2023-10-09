@@ -37,7 +37,8 @@ blogsRouter.post('/', middleWare.userExtractor, async (request, response) => {
     author: body.author,
     url: body.url,
     likes: body.likes || 0,
-    user: user._id
+    user: user._id,
+    comments: []
   })
   const savedBlog = await blog.save()
 
@@ -58,6 +59,26 @@ blogsRouter.put('/:id', async (request, response) => {
   const updatedNote = await Blog.findByIdAndUpdate(
     id,
     request.body,
+    { new: true }
+  )
+
+  if (!updatedNote) {
+    return response.status(400).send(
+      { error: 'blog does not exist' }
+    )
+  }
+
+  await updatedNote.populate('user', { 'name': 1, 'username': 1 })
+
+  response.json(updatedNote)
+})
+
+blogsRouter.post('/:id/comments', async (request, response) => {
+  const id = request.params.id
+  const comment = request.body.comment
+  const updatedNote = await Blog.findByIdAndUpdate(
+    id,
+    { $push: { comments: comment }},
     { new: true }
   )
 
