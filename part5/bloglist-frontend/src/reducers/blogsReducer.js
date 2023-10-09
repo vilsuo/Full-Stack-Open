@@ -41,6 +41,7 @@ const blogsSlice = createSlice({
 
 export const { setBlogs } = blogsSlice.actions
 
+// todo error handler?
 export const initializeBlogs = () => {
   return async (dispatch) => {
     try {
@@ -50,7 +51,6 @@ export const initializeBlogs = () => {
   }
 }
 
-// todo error handler?
 export const createBlog = createAsyncThunk(
   // A string that will be used to generate additional Redux action type
   // constants, representing the lifecycle of an async request

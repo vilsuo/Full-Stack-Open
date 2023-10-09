@@ -1,14 +1,18 @@
 import { useEffect } from 'react'
+import { Route, Routes, useMatch } from 'react-router-dom'
+import Users from './components/users/Users'
+import User from './components/users/User'
 import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
-import BlogForm from './components/BlogForm'
-import Togglable from './components/Togglable'
+import BlogsView from './components/blogs/BlogsView'
+import Blog from './components/blogs/Blog'
 
 import { initializeBlogs } from './reducers/blogsReducer'
+import { initializeUsers } from './reducers/usersReducer'
 
 import { useDispatch, useSelector } from 'react-redux'
-import BlogList from './components/BlogList'
-import { initializeUser, removeUser } from './reducers/userReducer'
+import { initializeUser } from './reducers/userReducer'
+import NavBar from './components/NavBar'
 
 // notification clears too quickly if old notification message
 // is still present
@@ -28,9 +32,9 @@ const App = () => {
     dispatch(initializeBlogs())
   }, [])
 
-  const handleLogout = () => {
-    dispatch(removeUser())
-  }
+  useEffect(() => {
+    dispatch(initializeUsers())
+  }, [])
 
   if (user === null) {
     return <LoginForm />
@@ -38,16 +42,14 @@ const App = () => {
 
   return (
     <div>
-      <h2>blogs</h2>
+      <NavBar />
       <Notification />
-      {user.name} logged in
-      <button id="logout-button" onClick={handleLogout}>
-        logout
-      </button>
-      <Togglable buttonLabel="create new blog">
-        <BlogForm />
-      </Togglable>
-      <BlogList />
+      <Routes>
+        <Route path="/users" element={<Users />} />
+        <Route path="/users/:id" element={<User />}></Route>
+        <Route path="/" element={<BlogsView />}></Route>
+        <Route path="/blogs/:id" element={<Blog />}></Route>
+      </Routes>
     </div>
   )
 }
