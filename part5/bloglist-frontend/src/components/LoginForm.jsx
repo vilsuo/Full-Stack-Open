@@ -3,20 +3,25 @@ import Notification from './Notification'
 import { useDispatch } from 'react-redux'
 import { showNotification } from '../reducers/notificationReducer'
 import { login } from '../reducers/userReducer'
+import { useField } from '../hooks'
+import { useNavigate } from 'react-router-dom'
 
 const LoginForm = () => {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  const usernameField = useField('text', 'login-username-input')
+  const passwordField = useField('password', 'login-password-input')
   const dispatch = useDispatch()
+  const navigate = useNavigate()
 
-  const handleLogin = async (event) => {
+  const handleLogin = (event) => {
     event.preventDefault()
 
-    dispatch(login({ username, password }))
+    dispatch(login({ username: usernameField.inputProps.value, password: passwordField.inputProps.value }))
       .unwrap()
       .then(() => {
-        setUsername('')
-        setPassword('')
+        usernameField.reset()
+        passwordField.reset()
+
+        navigate('/')
       })
       .catch((error) => {
         dispatch(showNotification(error))
@@ -30,22 +35,12 @@ const LoginForm = () => {
       <form onSubmit={handleLogin}>
         <label htmlFor="login-username-input">
           <span>username</span>
-          <input
-            id="login-username-input"
-            type="text"
-            value={username}
-            onChange={({ target }) => setUsername(target.value)}
-          />
+          <input { ...usernameField.inputProps } />
         </label>
         <br />
         <label htmlFor="login-password-input">
           <span>password</span>
-          <input
-            id="login-password-input"
-            type="password"
-            value={password}
-            onChange={({ target }) => setPassword(target.value)}
-          />
+          <input { ...passwordField.inputProps } />
         </label>
         <br />
         <button id="login-button" type="submit">
