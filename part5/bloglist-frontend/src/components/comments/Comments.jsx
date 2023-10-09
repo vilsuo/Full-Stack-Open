@@ -1,7 +1,7 @@
 import { useDispatch } from 'react-redux'
 import { useField } from '../../hooks'
 import { createComment } from '../../reducers/blogsReducer'
-import { showNotification } from '../../reducers/notificationReducer'
+import { showSuccessNotification, showErrorNotification } from '../../reducers/notificationReducer'
 import { updateUserBlog } from '../../reducers/usersReducer'
 
 const CommentForm = ({ blogId }) => {
@@ -18,11 +18,11 @@ const CommentForm = ({ blogId }) => {
       .unwrap()
       .then(updatedBlog => {
         dispatch(updateUserBlog(updatedBlog))
-        dispatch(showNotification(`comment ${comment} added`))
+        dispatch(showSuccessNotification(`comment ${comment} added`))
         commentField.reset()
       })
       .catch(rejectedValueError => {
-        dispatch(showNotification(rejectedValueError))
+        dispatch(showErrorNotification(rejectedValueError))
       })
   }
 

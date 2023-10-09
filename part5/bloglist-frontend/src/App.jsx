@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Route, Routes, useMatch } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import Users from './components/users/Users'
 import User from './components/users/User'
 import Notification from './components/Notification'
@@ -41,7 +41,7 @@ const App = () => {
   }
 
   return (
-    <div>
+    <div className='container'>
       <NavBar />
       <Notification />
       <Routes>

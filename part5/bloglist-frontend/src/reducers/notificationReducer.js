@@ -6,8 +6,11 @@ const notificationSlice = createSlice({
   name: 'notification',
   initialState,
   reducers: {
-    createNotification(state, action) {
-      return action.payload
+    createSuccessNotification(state, action) {
+      return { message: action.payload, type: 'success' }
+    },
+    createErrorNotification(state, action) {
+      return { message: action.payload, type: 'error' }
     },
     resetNotification(state, action) {
       return null
@@ -15,12 +18,21 @@ const notificationSlice = createSlice({
   },
 })
 
-export const { createNotification, resetNotification } =
+export const { createSuccessNotification, createErrorNotification, resetNotification } =
   notificationSlice.actions
 
-export const showNotification = (message) => {
+export const showSuccessNotification = (message) => {
   return (dispatch) => {
-    dispatch(createNotification(message))
+    dispatch(createSuccessNotification(message))
+    setTimeout(() => {
+      dispatch(resetNotification())
+    }, 5000)
+  }
+}
+
+export const showErrorNotification = (message) => {
+  return (dispatch) => {
+    dispatch(createErrorNotification(message))
     setTimeout(() => {
       dispatch(resetNotification())
     }, 5000)

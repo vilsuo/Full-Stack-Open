@@ -1,7 +1,6 @@
-import { useState } from 'react'
 import Notification from './Notification'
 import { useDispatch } from 'react-redux'
-import { showNotification } from '../reducers/notificationReducer'
+import { showErrorNotification } from '../reducers/notificationReducer'
 import { login } from '../reducers/userReducer'
 import { useField } from '../hooks'
 import { useNavigate } from 'react-router-dom'
@@ -24,7 +23,7 @@ const LoginForm = () => {
         navigate('/')
       })
       .catch((error) => {
-        dispatch(showNotification(error))
+        dispatch(showErrorNotification(error))
       })
   }
 

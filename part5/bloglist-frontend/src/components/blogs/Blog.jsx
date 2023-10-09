@@ -2,7 +2,7 @@ import { useDispatch } from 'react-redux'
 import { useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 import { deleteBlog, updateBlog } from '../../reducers/blogsReducer'
-import { showNotification } from '../../reducers/notificationReducer'
+import { showSuccessNotification, showErrorNotification } from '../../reducers/notificationReducer'
 import { removeUserBlog, updateUserBlog } from '../../reducers/usersReducer'
 import Comments from '../comments/Comments'
 
@@ -32,12 +32,12 @@ const Blog = () => {
           dispatch(removeUserBlog(id))
 
           dispatch(
-            showNotification(`blog ${blog.title} by ${blog.author} deleted`),
+            showSuccessNotification(`blog ${blog.title} by ${blog.author} deleted`),
           )
           navigate(-1)
         })
         .catch((rejectedValueError) => {
-          dispatch(showNotification(rejectedValueError))
+          dispatch(showErrorNotification(rejectedValueError))
         })
     }
   }
@@ -52,9 +52,12 @@ const Blog = () => {
       .unwrap()
       .then((updatedBlog) => {
         dispatch(updateUserBlog(updatedBlog))
+        dispatch(
+          showSuccessNotification(`liked a blog ${blog.title} by ${blog.author}`),
+        )
       })
       .catch((rejectedValueError) => {
-        dispatch(showNotification(rejectedValueError))
+        dispatch(showErrorNotification(rejectedValueError))
       })
   }
 

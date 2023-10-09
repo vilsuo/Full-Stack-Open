@@ -1,6 +1,6 @@
 import { createBlog } from '../../reducers/blogsReducer'
 import { useDispatch } from 'react-redux'
-import { showNotification } from '../../reducers/notificationReducer'
+import { showSuccessNotification, showErrorNotification } from '../../reducers/notificationReducer'
 import { useField } from '../../hooks'
 import { addUserBlog } from '../../reducers/usersReducer'
 
@@ -37,7 +37,7 @@ const BlogForm = () => {
         dispatch(addUserBlog(addedBlog))
 
         dispatch(
-          showNotification(
+          showSuccessNotification(
             `blog ${addedBlog.title} by ${addedBlog.author} added`,
           ),
         )
@@ -46,7 +46,7 @@ const BlogForm = () => {
         urlField.reset()
       })
       .catch((rejectedValueError) => {
-        dispatch(showNotification(rejectedValueError))
+        dispatch(showErrorNotification(rejectedValueError))
       })
   }
 
