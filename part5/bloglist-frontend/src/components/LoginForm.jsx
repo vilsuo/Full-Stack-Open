@@ -2,23 +2,25 @@ import Notification from './Notification'
 import { useDispatch } from 'react-redux'
 import { showErrorNotification } from '../reducers/notificationReducer'
 import { login } from '../reducers/userReducer'
-import { useField } from '../hooks'
 import { useNavigate } from 'react-router-dom'
+import { Form, Col, Row, Button } from 'react-bootstrap'
+import { useState } from 'react'
 
 const LoginForm = () => {
-  const usernameField = useField('text', 'login-username-input')
-  const passwordField = useField('password', 'login-password-input')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
   const handleLogin = (event) => {
     event.preventDefault()
 
-    dispatch(login({ username: usernameField.inputProps.value, password: passwordField.inputProps.value }))
+    dispatch(login({ username, password: password }))
       .unwrap()
       .then(() => {
-        usernameField.reset()
-        passwordField.reset()
+        setUsername('')
+        setPassword('')
 
         navigate('/')
       })
@@ -28,24 +30,54 @@ const LoginForm = () => {
   }
 
   return (
-    <div id="login-form">
+    <div>
       <Notification id="login-form-notification" />
       <h2>Login to the application</h2>
-      <form onSubmit={handleLogin}>
-        <label htmlFor="login-username-input">
-          <span>username</span>
-          <input { ...usernameField.inputProps } />
-        </label>
-        <br />
-        <label htmlFor="login-password-input">
-          <span>password</span>
-          <input { ...passwordField.inputProps } />
-        </label>
-        <br />
-        <button id="login-button" type="submit">
-          login
-        </button>
-      </form>
+      <Form
+        id='create-blog-form'
+        className='mb-2 p-2 border rounded'
+        onSubmit={handleLogin}
+      >
+        <Form.Group as={Row} controlId='formLoginUsername'>
+          <Form.Label column sm={2}>
+            username
+          </Form.Label>
+          <Col sm={10}>
+            <Form.Control
+              size='sm'
+              type='text'
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+            />
+          </Col>
+        </Form.Group>
+
+        <Form.Group as={Row} controlId='formLoginPassword'>
+          <Form.Label column sm={2}>
+            password
+          </Form.Label>
+          <Col sm={10}>
+            <Form.Control
+              size='sm'
+              type='password'
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+            />
+          </Col>
+        </Form.Group>
+
+        <Form.Group as={Row}>
+          <Col sm={{ span: 10, offset: 2 }}>
+            <Button
+              id='login-button'
+              size='sm'
+              type='submit'
+            >
+              login
+            </Button >
+          </Col>
+        </Form.Group>
+      </Form>
     </div>
   )
 }

@@ -1,14 +1,14 @@
-import Togglable from '../Togglable'
 import BlogForm from './BlogForm'
 import BlogList from './BlogList'
+import Toggable from '../Togglable'
 
 const BlogsView = () => {
   return (
     <div>
       <h2>blogs</h2>
-      <Togglable buttonLabel="create new blog">
+      <Toggable text='Create blog'>
         <BlogForm />
-      </Togglable>
+      </Toggable>
       <BlogList />
     </div>
   )

@@ -107,12 +107,18 @@ const Blog = () => {
         handleClose={handleClose}
         handleRemove={handleRemove}
       />
-      <h2>{blog.title} {blog.author}</h2>
-      <Stack className="mb-2">
+      <Stack
+        className='my-2 p-2 border rounded'
+      >
+        <h2>{blog.title} {blog.author}</h2>
         <div><a href={blog.url}>{blog.url}</a></div>
         <div id='blog-likes'>{blog.likes} likes</div>
         <div>added by {blog.user.name}</div>
-        <Stack direction='horizontal' gap={2}>
+        <Stack
+          direction='horizontal'
+          className='mt-2'
+          gap={2}
+        >
           {likeButton()}
           {removeButton()}
         </Stack>

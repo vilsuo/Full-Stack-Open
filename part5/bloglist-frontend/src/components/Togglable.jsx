@@ -1,32 +1,20 @@
-import PropTypes from 'prop-types'
+import { Accordion } from 'react-bootstrap'
 
-import { useState } from 'react'
-
-const Togglable = (props) => {
-  const [visible, setVisible] = useState(false)
-
-  const hideWhenVisible = { display: visible ? 'none' : '' }
-  const showWhenVisible = { display: visible ? '' : 'none' }
-
-  const toggleVisibility = () => {
-    setVisible(!visible)
-  }
-
+const Toggable = (props) => {
   return (
     <div>
-      <div style={hideWhenVisible}>
-        <button onClick={toggleVisibility}>{props.buttonLabel}</button>
-      </div>
-      <div style={showWhenVisible}>
-        {props.children}
-        <button onClick={toggleVisibility}>cancel</button>
-      </div>
+      <Accordion>
+        <Accordion.Item eventKey="0">
+          <Accordion.Header>
+            {props.text}
+          </Accordion.Header>
+          <Accordion.Body>
+            {props.children}
+          </Accordion.Body>
+        </Accordion.Item>
+      </Accordion>
     </div>
   )
 }
 
-Togglable.propTypes = {
-  buttonLabel: PropTypes.string.isRequired,
-}
-
-export default Togglable
+export default Toggable

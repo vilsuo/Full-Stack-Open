@@ -1,10 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { removeUser } from '../reducers/userReducer'
-
-const style = {
-  padding: 5,
-}
+import { Button, Navbar, Nav, Container } from 'react-bootstrap'
 
 const NavBar = () => {
   const user = useSelector((state) => state.user)
@@ -15,18 +12,30 @@ const NavBar = () => {
   }
 
   return (
-    <div>
-      <Link style={style} to="/">
-        blogs
-      </Link>
-      <Link style={style} to="/users">
-        users
-      </Link>
-      <em>{user.name} logged in</em>
-      <button id="logout-button" onClick={handleLogout}>
-        logout
-      </button>
-    </div>
+    <Navbar className='my-2 border rounded'>
+      <Container>
+        <Nav className='me-auto'>
+          <Nav.Link href='#' as='span'>
+            <Link to='/'>Home</Link>
+          </Nav.Link>
+          <Nav.Link href='#' as='span'>
+            <Link to='/users'>Users</Link>
+          </Nav.Link>
+        </Nav>
+      </Container>
+      <Container className='flex-row-reverse'>
+        <div >
+          <em className='m-2'>{user.username} logged in</em>
+          <Button
+            id='logout-button'
+            size='sm'
+            onClick={handleLogout}
+          >
+            logout
+          </Button>
+        </div>
+      </Container>
+    </Navbar>
   )
 }
 

@@ -1,25 +1,23 @@
 import { useDispatch } from 'react-redux'
-import { useField } from '../../hooks'
+import { useState } from 'react'
 import { createComment } from '../../reducers/blogsReducer'
 import { showSuccessNotification, showErrorNotification } from '../../reducers/notificationReducer'
 import { updateUserBlog } from '../../reducers/usersReducer'
+import { Form, FloatingLabel, Button, Stack } from 'react-bootstrap'
 
 const CommentForm = ({ blogId }) => {
-  const commentField = useField(
-    'text', 'form-comment-input', 'write your comment here'
-  )
+  const [comment, setComment] = useState('')
   const dispatch = useDispatch()
 
   const handleSubmit = (event) => {
     event.preventDefault()
 
-    const comment = commentField.inputProps.value
     dispatch(createComment({ id: blogId, comment }))
       .unwrap()
       .then(updatedBlog => {
         dispatch(updateUserBlog(updatedBlog))
         dispatch(showSuccessNotification(`comment ${comment} added`))
-        commentField.reset()
+        setComment('')
       })
       .catch(rejectedValueError => {
         dispatch(showErrorNotification(rejectedValueError))
@@ -27,31 +25,55 @@ const CommentForm = ({ blogId }) => {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input { ...commentField.inputProps }/>
-      <button type='submit'>add comment</button>
-    </form>
+    <Form
+      className='border rounded mt-2 p-2'
+      onSubmit={handleSubmit}
+    >
+      <FloatingLabel
+        controlId='formComment'
+        label='comment'
+      >
+        <Form.Control
+          size='sm'
+          as='textarea'
+          value={comment}
+          placeholder='leave a comment'
+          style={{ height: '100px' }}
+          onChange={(event) => setComment(event.target.value)}
+        />
+      </FloatingLabel>
+      <Button
+        size='sm'
+        className='mt-2'
+        type='submit'
+      >
+        post
+      </Button>
+    </Form>
   )
 }
 
 const CommentList = ({ comments }) => {
   return (
-    <div>
-      <ul>
-        {comments.map((comment, index) =>
-          <li key={index}>{comment}</li>
-        )}
-      </ul>
-    </div>
+    <Stack gap={1}>
+      {comments.map((comment, index) =>
+        <div
+          key={index}
+          className='mt-2 px-2 border rounded'
+        >
+          {comment}
+        </div>
+      )}
+    </Stack >
   )
 }
 
 const Comments = ({ blog }) => {
   return (
-    <div>
+    <div className='p-2 border rounded'>
       <h3>comments</h3>
-      <CommentForm blogId={blog.id} />
       <CommentList comments={blog.comments} />
+      <CommentForm blogId={blog.id} />
     </div>
   )
 }
