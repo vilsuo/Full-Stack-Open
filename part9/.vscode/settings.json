@@ -1,5 +1,6 @@
 {
   "eslint.workingDirectories": [
-    "./patientorbackend"
+    "./patientorbackend",
+    "./flight-diary"
   ]
 }
