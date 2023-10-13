@@ -14,13 +14,13 @@ router.get('/:id', (req, res) => {
 
   const patient = patientsService.findById(id);
   if (!patient) {
-    return res.status(404).send({ error: 'patient not found' });
+    res.status(404).send({ error: 'patient not found' });
   } else {
-    return res.json(patient);
+    res.json(patient);
   }
 });
 
-router.post('/', (req, res) => {
+router.post('/', (req, res, next) => {
   try {
     const newPatient: NewPatient = toNewPatient(req.body);
     const createdPatient = patientsService.addPatient(newPatient);
@@ -28,11 +28,7 @@ router.post('/', (req, res) => {
     res.status(201).send(createdPatient);
     
   } catch (error: unknown) {
-    let errorMessage = 'Something bad happened: ';
-    if (error instanceof Error) {
-      errorMessage += error.message;
-    }
-    res.status(400).send({ error : errorMessage });
+    next(error);
   }
 });
 

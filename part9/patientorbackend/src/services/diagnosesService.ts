@@ -7,6 +7,11 @@ const getDiagnoses = (): Diagnosis[] => {
   return diagnoses;
 };
 
+const getByCode = (code: unknown) => {
+  return diagnoses.find(diagnose => diagnose.code === code);
+};
+
 export default {
-  getDiagnoses
+  getDiagnoses,
+  getByCode
 };

@@ -1,7 +1,8 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import patientService from "../../services/patients";
-import { Patient } from "../../types";
+import EntryList from "./EntryList";
+import { Diagnosis, Patient } from "../../types";
 import { Gender } from "../../types";
 import axios from 'axios';
 
@@ -11,11 +12,8 @@ import {
   QuestionMark
 } from '@mui/icons-material';
 
-import { Grid, Stack, Typography } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 
-/**
- * Helper function for exhaustive type checking
- */
 const assertNever = (value: never): never => {
   throw new Error(
     `Unhandled gender: ${JSON.stringify(value)}`
@@ -39,7 +37,11 @@ const GenderIcon = ({ gender } : GenderProps) => {
   }
 };
 
-const PatientPage = () => {
+interface PatientPageProps {
+  diagnoses: Diagnosis[];
+}
+
+const PatientPage = ({ diagnoses }: PatientPageProps) => {
   const [patient, setPatient] = useState<Patient | null>(null);
   const id = useParams().id;
 
@@ -76,17 +78,19 @@ const PatientPage = () => {
 
   return (
     <div>
-      <Grid container direction="row" alignItems="center">
-        <Grid item>
-          <Typography variant="h6">{patient.name}</Typography>
-        </Grid>
-        <Grid item>
+      <Stack spacing={2}>
+        <Stack direction="row" alignItems="center">
+          <Typography variant="h5">{patient.name}</Typography>
           <GenderIcon gender={patient.gender} />
-        </Grid>
-      </Grid>
-      <Stack>
-        <span>ssn: {patient.ssn}</span>
-        <span>occupation: {patient.occupation}</span>
+        </Stack>
+        <Stack>
+          <span>ssn: {patient.ssn}</span>
+          <span>occupation: {patient.occupation}</span>
+        </Stack>
+        <EntryList
+          entryList={patient.entries}
+          diagnoses={diagnoses}
+        />
       </Stack>
     </div>
   );

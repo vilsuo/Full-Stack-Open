@@ -47,6 +47,13 @@ const newEntries = () => {
   return new Array<Entry>;
 };
 
+export const toCode = (code: unknown) => {
+  if (!isString(code)) {
+    throw new Error('Incorrect or missing code');
+  }
+  return code;
+};
+
 export const toNewPatient = (object: unknown): NewPatient => {
   if (!object || typeof object !== 'object') {
     throw new Error('Incorrect or missing data');
