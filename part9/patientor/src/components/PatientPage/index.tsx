@@ -2,17 +2,29 @@ import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import patientService from "../../services/patients";
 import EntryList from "./EntryList";
-import { Diagnosis, Patient } from "../../types";
+import { Diagnosis, EntryFormValues, Patient } from "../../types";
 import GenderIcon from "./icons/GenderIcon";
-import { Stack, Typography } from "@mui/material";
+import { Stack, Typography, Button } from "@mui/material";
+import AddEntryModal from "../AddEntryModal";
 import axios from 'axios';
 
-interface PatientPageProps {
+interface Props {
   diagnoses: Diagnosis[];
 }
 
-const PatientPage = ({ diagnoses }: PatientPageProps) => {
+const PatientPage = ({ diagnoses }: Props) => {
   const [patient, setPatient] = useState<Patient | null>(null);
+
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [error, setError] = useState<string>();
+
+  const openModal = (): void => setModalOpen(true);
+
+  const closeModal = (): void => {
+    setModalOpen(false);
+    setError(undefined);
+  };
+
   const id = useParams().id;
 
   useEffect(() => {
@@ -42,6 +54,10 @@ const PatientPage = ({ diagnoses }: PatientPageProps) => {
     void fetchPatient();
   }, [id]);
 
+  const submitNewEntry = async (values: EntryFormValues) => {
+    console.log('submitting', values);
+  };
+
   if (!patient) {
     return (
       <h1>Error: patient does not exist</h1>
@@ -50,7 +66,7 @@ const PatientPage = ({ diagnoses }: PatientPageProps) => {
 
   return (
     <div>
-      <Stack spacing={2}>
+      <Stack spacing={2} sx={{ marginBottom: "1em" }}>
         <Stack direction="row" alignItems="center">
           <Typography variant="h5">{patient.name}</Typography>
           <GenderIcon gender={patient.gender} />
@@ -64,6 +80,15 @@ const PatientPage = ({ diagnoses }: PatientPageProps) => {
           diagnoses={diagnoses}
         />
       </Stack>
+      <AddEntryModal
+        modalOpen={modalOpen}
+        onSubmit={submitNewEntry}
+        error={error}
+        onClose={closeModal}
+      />
+      <Button variant="contained" onClick={() => openModal()}>
+        Add New Entry
+      </Button>
     </div>
   );
 };

@@ -2,11 +2,11 @@ import { LocalHospital, MonitorHeart, Work } from '@mui/icons-material';
 import { assertNever } from "../../../utils";
 import { Entry } from '../../../types';
 
-interface TypeProps {
+interface Props {
   type: Entry["type"];
 }
 
-const TypeIcon = ({ type } : TypeProps) => {
+const TypeIcon = ({ type } : Props) => {
   switch (type) {
     case "HealthCheck":
       return <MonitorHeart />;

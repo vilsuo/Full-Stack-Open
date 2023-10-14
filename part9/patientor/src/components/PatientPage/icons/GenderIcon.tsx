@@ -2,11 +2,11 @@ import { Gender } from "../../../types";
 import { Male, Female, QuestionMark } from '@mui/icons-material';
 import { assertNever } from "../../../utils";
 
-interface GenderProps {
+interface Props {
   gender: Gender;
 }
 
-const GenderIcon = ({ gender } : GenderProps) => {
+const GenderIcon = ({ gender } : Props) => {
   switch (gender) {
     case Gender.Male:
       return <Male />;

@@ -1,11 +1,11 @@
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { HealthCheckRating } from '../../../types';
 
-interface HealthIconProps {
+interface Props {
   rating: HealthCheckRating;
 }
 
-const HealthIcon = ( { rating }: HealthIconProps) => {
+const HealthIcon = ( { rating }: Props) => {
 
   switch (rating) {
     case HealthCheckRating.Healthy:
