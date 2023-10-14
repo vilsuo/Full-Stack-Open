@@ -3,39 +3,9 @@ import { useState, useEffect } from "react";
 import patientService from "../../services/patients";
 import EntryList from "./EntryList";
 import { Diagnosis, Patient } from "../../types";
-import { Gender } from "../../types";
-import axios from 'axios';
-
-import {
-  Male,
-  Female,
-  QuestionMark
-} from '@mui/icons-material';
-
+import GenderIcon from "./GenderIcon";
 import { Stack, Typography } from "@mui/material";
-
-const assertNever = (value: never): never => {
-  throw new Error(
-    `Unhandled gender: ${JSON.stringify(value)}`
-  );
-};
-
-interface GenderProps {
-  gender: Gender;
-}
-
-const GenderIcon = ({ gender } : GenderProps) => {
-  switch (gender) {
-    case Gender.Male:
-      return <Male />;
-    case Gender.Female:
-      return <Female />;
-    case Gender.Other:
-      return <QuestionMark />;
-    default:
-      return assertNever(gender);
-  }
-};
+import axios from 'axios';
 
 interface PatientPageProps {
   diagnoses: Diagnosis[];
@@ -55,7 +25,9 @@ const PatientPage = ({ diagnoses }: PatientPageProps) => {
         } catch (error: unknown) {
           if (axios.isAxiosError(error)) {
             if (error?.response?.data && typeof error?.response?.data === "string") {
-              const message = error.response.data.replace('Something went wrong. Error: ', '');
+              const message = error.response.data.replace(
+                'Something went wrong. Error: ', ''
+              );
               console.error(message);
             } else {
               console.log("Unrecognized axios error");
