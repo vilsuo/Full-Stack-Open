@@ -1,5 +1,5 @@
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import { HealthCheckRating } from '../../types';
+import { HealthCheckRating } from '../../../types';
 
 interface HealthIconProps {
   rating: HealthCheckRating;

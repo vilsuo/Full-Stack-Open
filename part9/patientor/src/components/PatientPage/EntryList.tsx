@@ -1,41 +1,20 @@
-import { Diagnosis, Entry, HealthCheckEntry, HospitalEntry, Discharge, OccupationalHealthcareEntry, SickLeave } from "../../types";
+import { Diagnosis, Entry, Discharge, SickLeave } from "../../types";
 import { Stack, Typography } from "@mui/material";
 import DiagnosisList from "./DiagnosisList";
 import { assertNever } from "../../utils";
-import TypeIcon from "./TypeIcon";
-import HealthIcon from "./HealthIcon";
+import TypeIcon from "./icons/TypeIcon";
+import HealthIcon from "./icons/HealthIcon";
 
-interface DateEntryProps {
+interface EntryHeaderProps {
   entry: Entry;
 }
 
-const DateEntry = ({ entry }: DateEntryProps) => {
+const EntryHeader = ({ entry }: EntryHeaderProps) => {
   return (
-    <Stack direction="row" alignItems="center">
+    <Stack direction="row" alignItems="center" spacing={1}>
       <span>{entry.date}</span>
       <TypeIcon type={entry.type} />
-    </Stack>
-  );
-};
-
-interface HealthCheckItemProps {
-  entry: HealthCheckEntry;
-  diagnoses: Diagnosis[];
-}
-
-const HealthCheckItem = ({ entry, diagnoses }: HealthCheckItemProps) => {
-  return (
-    <Stack sx={{ border: 1, borderRadius: "3px", padding: 1 }}>
-      <DateEntry entry={entry} />
-      <em>{entry.description}</em>
-      <DiagnosisList
-        codes={entry.diagnosisCodes}
-        diagnoses={diagnoses}
-      />
-      <HealthIcon rating={entry.healthCheckRating} />
-      <span style={{ marginTop: 10 }}>
-        diagnose by {entry.specialist}
-      </span>
+      { 'employerName' in entry && <span>{entry.employerName}</span> }
     </Stack>
   );
 };
@@ -53,28 +32,6 @@ const DischargeItem = ({ discharge } : DischargeItemProps) => {
   );
 };
 
-interface HospitalItemProps {
-  entry: HospitalEntry;
-  diagnoses: Diagnosis[];
-}
-
-const HospitalItem = ({ entry, diagnoses }: HospitalItemProps) => {
-  return (
-    <Stack sx={{ border: 1, borderRadius: "3px", padding: 1 }}>
-      <DateEntry entry={entry} />
-      <em>{entry.description}</em>
-      <DiagnosisList
-        codes={entry.diagnosisCodes}
-        diagnoses={diagnoses}
-      />
-      <DischargeItem discharge={entry.discharge}/>
-      <span style={{ marginTop: 10 }}>
-        diagnose by {entry.specialist}
-      </span>
-    </Stack>
-  );
-};
-
 interface SickLeaveEntryProps {
   sickLeave?: SickLeave;
 }
@@ -85,28 +42,30 @@ const SickLeaveEntry = ({ sickLeave }: SickLeaveEntryProps) => {
   }
 
   return (
-    <span>Sick leave {sickLeave.startDate} — {sickLeave.endDate}</span>
+    <span>
+      Sick leave {sickLeave.startDate} — {sickLeave.endDate}
+    </span>
   );
 };
 
-interface OccupationalHealthcareItemProps {
-  entry: OccupationalHealthcareEntry;
+interface EntryItemFrameProps {
+  entry: Entry;
   diagnoses: Diagnosis[];
+  children: JSX.Element | JSX.Element[];
 }
 
-const OccupationalHealthcareItem = ({ entry, diagnoses }: OccupationalHealthcareItemProps) => {
+const EntryItemFrame = ({ entry, diagnoses, children }: EntryItemFrameProps) => {
   return (
-    <Stack sx={{ border: 1, borderRadius: "3px", padding: 1 }}>
-      <Stack direction="row" alignItems="center">
-        <DateEntry entry={entry} />
-        <span>{entry.employerName}</span>
-      </Stack>
+    <Stack sx={{ border: 1, borderRadius: "5px", padding: 1 }}>
+      <EntryHeader entry={entry} />
       <em>{entry.description}</em>
       <DiagnosisList
         codes={entry.diagnosisCodes}
         diagnoses={diagnoses}
       />
-      <SickLeaveEntry sickLeave={entry.sickLeave} />
+      {
+        children
+      }
       <span style={{ marginTop: 10 }}>
         diagnose by {entry.specialist}
       </span>
@@ -124,15 +83,21 @@ const EntryItem = ({ entry, diagnoses }: EntryItemProps) => {
   switch(entry.type) {
     case "HealthCheck":
       return (
-        <HealthCheckItem entry={entry} diagnoses={diagnoses} />
+        <EntryItemFrame entry={entry} diagnoses={diagnoses} >
+          <HealthIcon rating={entry.healthCheckRating} />
+        </EntryItemFrame>
       );
     case "Hospital":
       return (
-        <HospitalItem entry={entry} diagnoses={diagnoses} />
+        <EntryItemFrame entry={entry} diagnoses={diagnoses} >
+          <DischargeItem discharge={entry.discharge} />
+        </EntryItemFrame>
       );
     case "OccupationalHealthcare":
       return (
-        <OccupationalHealthcareItem entry={entry} diagnoses={diagnoses} />
+        <EntryItemFrame entry={entry} diagnoses={diagnoses} >
+          <SickLeaveEntry sickLeave={entry.sickLeave} />
+        </EntryItemFrame>
       );
     default:
       return assertNever(entry);

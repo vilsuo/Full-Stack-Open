@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import patientService from "../../services/patients";
 import EntryList from "./EntryList";
 import { Diagnosis, Patient } from "../../types";
-import GenderIcon from "./GenderIcon";
+import GenderIcon from "./icons/GenderIcon";
 import { Stack, Typography } from "@mui/material";
 import axios from 'axios';
 

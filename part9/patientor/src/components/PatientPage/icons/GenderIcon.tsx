@@ -1,6 +1,6 @@
-import { Gender } from "../../types";
+import { Gender } from "../../../types";
 import { Male, Female, QuestionMark } from '@mui/icons-material';
-import { assertNever } from "../../utils";
+import { assertNever } from "../../../utils";
 
 interface GenderProps {
   gender: Gender;

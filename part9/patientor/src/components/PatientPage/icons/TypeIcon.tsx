@@ -1,6 +1,6 @@
 import { LocalHospital, MonitorHeart, Work } from '@mui/icons-material';
-import { assertNever } from "../../utils";
-import { Entry } from '../../types';
+import { assertNever } from "../../../utils";
+import { Entry } from '../../../types';
 
 interface TypeProps {
   type: Entry["type"];
