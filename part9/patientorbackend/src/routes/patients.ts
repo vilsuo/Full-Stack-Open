@@ -1,7 +1,7 @@
 import express from 'express';
 import patientsService from '../services/patientsService';
-import { toNewPatient } from '../utils';
-import { NewPatient } from '../types';
+import { toNewPatient, toNewEntry } from '../utils';
+import { NewPatient, NewEntry } from '../types';
 
 const router = express.Router();
 
@@ -14,7 +14,7 @@ router.get('/:id', (req, res) => {
 
   const patient = patientsService.findById(id);
   if (!patient) {
-    res.status(404).send({ error: 'patient not found' });
+    res.status(404).send({ error: 'Patient not found' });
   } else {
     res.json(patient);
   }
@@ -27,6 +27,20 @@ router.post('/', (req, res, next) => {
 
     res.status(201).send(createdPatient);
     
+  } catch (error: unknown) {
+    next(error);
+  }
+});
+
+router.post('/:id/entries', (req, res, next) => {
+  const id = req.params.id;
+
+  try {
+    const newEntry: NewEntry = toNewEntry(req.body);
+    const createdEntry = patientsService.addEntry(id, newEntry);
+
+    res.status(201).send(createdEntry);
+
   } catch (error: unknown) {
     next(error);
   }
