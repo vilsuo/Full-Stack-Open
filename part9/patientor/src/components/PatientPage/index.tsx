@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import patientService from "../../services/patients";
 import EntryList from "./EntryList";
-import { Diagnosis, EntryFormValues, Patient } from "../../types";
+import { Diagnosis, Patient } from "../../types";
 import GenderIcon from "./icons/GenderIcon";
 import { Stack, Typography, Button } from "@mui/material";
 import AddEntryModal from "../AddEntryModal";
@@ -54,18 +54,31 @@ const PatientPage = ({ diagnoses }: Props) => {
     void fetchPatient();
   }, [id]);
 
-  const submitNewEntry = async (values: EntryFormValues) => {
-    if (id === undefined) {
+  const submitNewEntry = async (values: object) => {
+    if (id === undefined || !patient) {
+      console.log('error: patient not found');
       return;
     }
 
     try {
-      await patientService.createEntry(id, values);
-      console.log('success');
+      const entry = await patientService.createEntry(id, values);
 
+      const {
+        name,
+        occupation,
+        gender,
+        ssn,
+        dateOfBirth,
+        entries
+      } = patient;
+
+      setPatient({
+        id, name, occupation, gender, ssn, dateOfBirth,
+        entries: entries.concat(entry)
+      });
+
+      closeModal();
     } catch (error: unknown) {
-      console.log('failure');
-      
       if (axios.isAxiosError(error)) {
         setError(error.response?.data.error);
       } else {

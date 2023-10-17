@@ -1,12 +1,12 @@
 import { Dialog, DialogTitle, DialogContent, Divider, Alert } from '@mui/material';
 
 import AddEntryForm from "./AddEntryForm";
-import { Diagnosis, EntryFormValues } from "../../types";
+import { Diagnosis } from "../../types";
 
 interface Props {
   modalOpen: boolean;
   onClose: () => void;
-  onSubmit: (values: EntryFormValues) => void;
+  onSubmit: (values: object) => void;
   error?: string;
   diagnoses: Diagnosis[];
 }

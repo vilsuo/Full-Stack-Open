@@ -2,7 +2,7 @@ import { SyntheticEvent, useState } from "react";
 import {
   Grid, Button, TextField, MenuItem, Stack
 } from "@mui/material";
-import { EntryFormValues, Diagnosis, HealthCheckRating } from "../../types";
+import { Diagnosis, HealthCheckRating } from "../../types";
 import { filter } from 'lodash';
 import CodesAutoComplete from "./CodesAutoComplete";
 
@@ -13,20 +13,19 @@ interface HealthCheckRatingOption {
 
 const healthCheckOptions: HealthCheckRatingOption[] = filter(HealthCheckRating, (key, _value) => typeof key === 'string')
   .map(v => {
-    //console.log('value', HealthCheckRating[v], 'label', v);
     return ({ value: HealthCheckRating[v], label: v });
   });
 
 interface Props {
   onCancel: () => void;
-  onSubmit: (values: EntryFormValues) => void;
+  onSubmit: (values: object) => void;
   diagnoses: Diagnosis[];
 }
 
 const AddEntryForm = ({ onCancel, onSubmit, diagnoses }: Props) => {
-  const [description, setDescription] = useState('');
-  const [date, setDate] = useState('');
-  const [specialist, setSpecialist] = useState('');
+  const [description, setDescription] = useState<string>('');
+  const [date, setDate]               = useState<string>('');
+  const [specialist, setSpecialist]   = useState<string>('');
   const [diagnosesCodes, setDiagnosesCodes] = useState<Array<Diagnosis['code']>>([]);
   const [healthCheckRating, setHealthCheckRating] = useState<HealthCheckRating>(HealthCheckRating.Healthy);
 
@@ -35,9 +34,9 @@ const AddEntryForm = ({ onCancel, onSubmit, diagnoses }: Props) => {
 
     onSubmit({
       type: 'HealthCheck',
-      description,
-      date,
-      specialist,
+      description:  description !== '' ? description : undefined,
+      date:         date !== '' ? date : undefined,
+      specialist:   specialist !== '' ? specialist : undefined,
       diagnosisCodes: diagnosesCodes,
       healthCheckRating
     });
