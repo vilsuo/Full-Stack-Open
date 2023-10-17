@@ -55,7 +55,23 @@ const PatientPage = ({ diagnoses }: Props) => {
   }, [id]);
 
   const submitNewEntry = async (values: EntryFormValues) => {
-    console.log('submitting', values);
+    if (id === undefined) {
+      return;
+    }
+
+    try {
+      await patientService.createEntry(id, values);
+      console.log('success');
+
+    } catch (error: unknown) {
+      console.log('failure');
+      
+      if (axios.isAxiosError(error)) {
+        setError(error.response?.data.error);
+      } else {
+        setError('unknown error');
+      }
+    }
   };
 
   if (!patient) {
@@ -85,6 +101,7 @@ const PatientPage = ({ diagnoses }: Props) => {
         onSubmit={submitNewEntry}
         error={error}
         onClose={closeModal}
+        diagnoses={diagnoses}
       />
       <Button variant="contained" onClick={() => openModal()}>
         Add New Entry

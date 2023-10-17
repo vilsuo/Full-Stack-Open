@@ -9,7 +9,7 @@ interface Props {
   onSubmit: (values: PatientFormValues) => void;
 }
 
-interface GenderOption{
+interface GenderOption {
   value: Gender;
   label: string;
 }
