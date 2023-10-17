@@ -164,19 +164,20 @@ const parseSickLeave = (sickLeave: unknown): SickLeave => {
 
 export const toNewEntry = (object: unknown): NewEntry => {
   if (!object || typeof object !== 'object') {
-    throw new Error('Incorrect or missing data');
+    throw new Error('Incorrect data');
   }
+  
+  if ('type' in object && isString(object.type)) {
 
-  if ('description' in object && 'date' in object && 'specialist' in object) {
-    const newBaseEntry = {
-      description: parseDescription(object.description),
-      date: parseDate(object.date),
-      specialist: parseSpecialist(object.specialist),
-      // optional
-      diagnosisCodes: parseDiagnosisCodes(object)
-    };
+    if ('description' in object && 'date' in object && 'specialist' in object) {
+      const newBaseEntry = {
+        description: parseDescription(object.description),
+        date: parseDate(object.date),
+        specialist: parseSpecialist(object.specialist),
+        // optional
+        diagnosisCodes: parseDiagnosisCodes(object)
+      };
 
-    if ('type' in object && isString(object.type)) {
       switch (object.type) {
         case 'HealthCheck':
           return ({
@@ -199,8 +200,10 @@ export const toNewEntry = (object: unknown): NewEntry => {
             ...newBaseEntry
           });
       }
+    } else {
+      throw new Error('Missing required data')
     }
   }
 
-  throw new Error('Incorrect data: a field missing');
+  throw new Error('Incorrect type');
 };
