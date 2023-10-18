@@ -1,4 +1,6 @@
-import { Dialog, DialogTitle, DialogContent, Divider, Alert } from '@mui/material';
+import {
+  Dialog, DialogTitle, DialogContent, Divider, Alert
+} from '@mui/material';
 
 import AddEntryForm from "./AddEntryForm";
 import { Diagnosis } from "../../types";

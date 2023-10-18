@@ -1,20 +1,46 @@
 import { SyntheticEvent, useState } from "react";
 import {
-  Grid, Button, TextField, MenuItem, Stack
+  Grid, Button, TextField, Stack,
+  FormControl, InputLabel, Select, MenuItem, SelectChangeEvent
 } from "@mui/material";
-import { Diagnosis, HealthCheckRating } from "../../types";
-import { filter } from 'lodash';
-import CodesAutoComplete from "./CodesAutoComplete";
+import { Entry, Diagnosis, HealthCheckRating } from "../../types";
+import DiagnosesCodesInput from "./DiagnosesCodesInput";
+import HealthCheckRatingOptionsInput from "./HealthCheckOptionsInput";
+import { assertNever, formatDate } from "../../utils";
+import { DatePicker } from '@mui/x-date-pickers';
+import { Dayjs } from 'dayjs';
+import DischargeInput from "./DischargeInput";
+import OccupationalHealthcareEntryInput from "./OccupationalHealthcareEntryInput";
 
-interface HealthCheckRatingOption {
-  label: HealthCheckRating;
-  value: string;
+interface EntryTypeSelectProps {
+  type: Entry['type'];
+  setType: React.Dispatch<React.SetStateAction<Entry['type']>>;
 }
 
-const healthCheckOptions: HealthCheckRatingOption[] = filter(HealthCheckRating, (key, _value) => typeof key === 'string')
-  .map(v => {
-    return ({ value: HealthCheckRating[v], label: v });
-  });
+const EntryTypeSelect = ({ type, setType}: EntryTypeSelectProps) => {
+
+  const handleChange = (event: SelectChangeEvent<typeof type>) => {
+    event.target;
+    setType(event.target.value as Entry['type']);
+  };
+
+  return (
+    <FormControl fullWidth variant="standard">
+      <InputLabel id="demo-simple-select-label">Type</InputLabel>
+      <Select
+        labelId="demo-simple-select-label"
+        id="demo-simple-select"
+        value={type}
+        label="Type"
+        onChange={handleChange}
+      >
+        <MenuItem value='HealthCheck'>HealthCheck</MenuItem>
+        <MenuItem value='Hospital'>Hospital</MenuItem>
+        <MenuItem value='OccupationalHealthcare'>OccupationalHealthcare</MenuItem>
+      </Select>
+    </FormControl>
+  );
+};
 
 interface Props {
   onCancel: () => void;
@@ -23,39 +49,80 @@ interface Props {
 }
 
 const AddEntryForm = ({ onCancel, onSubmit, diagnoses }: Props) => {
+  const [type, setType] = useState<Entry['type']>('HealthCheck');
+
+  // common for all entry types
   const [description, setDescription] = useState<string>('');
-  const [date, setDate]               = useState<string>('');
+  const [date, setDate]               = useState<Dayjs | null>(null);
+  //const [date, setDate]               = useState<string | null>(null);
   const [specialist, setSpecialist]   = useState<string>('');
+  // optional
   const [diagnosesCodes, setDiagnosesCodes] = useState<Array<Diagnosis['code']>>([]);
+
+  // type: 'HealthCheckEntry'
   const [healthCheckRating, setHealthCheckRating] = useState<HealthCheckRating>(HealthCheckRating.Healthy);
+
+  // type 'HospitalEntry'
+  const [dischargeDate, setDischargeDate] = useState<Dayjs | null>(null);
+  const [dischargeCriteria, setDischargeCriteria] = useState<string>('');
+
+  // type: 'OccupationalHealthcareEntry'
+  const [employerName, setEmployerName] = useState<string>('');
+  // optional
+  const [sickLeaveStartDate, setSickLeaveStartDate] = useState<Dayjs | null>(null);
+  const [sickLeaveEndDate, setSickLeaveEndDate] = useState<Dayjs | null>(null);
 
   const addEntry = (event: SyntheticEvent) => {
     event.preventDefault();
 
+    let specific;
+    switch (type) {
+      case 'HealthCheck':
+        specific = {
+          healthCheckRating: healthCheckRating ? healthCheckRating : null
+        };
+        break;
+      case 'Hospital':
+        specific = {
+          discharge: {
+            date: dischargeDate ? formatDate(dischargeDate) : undefined,
+            criteria: dischargeCriteria ? dischargeCriteria : undefined
+          }
+        };
+        break;
+      case 'OccupationalHealthcare':
+        specific = {
+          employerName: employerName ? employerName : undefined,
+          sickLeave: (sickLeaveStartDate || sickLeaveEndDate) ? {
+            startDate: sickLeaveStartDate ? formatDate(sickLeaveStartDate) : undefined,
+            endDate: sickLeaveEndDate ? formatDate(sickLeaveEndDate) : undefined
+          } : undefined
+        };
+        break;
+      default:
+        assertNever(type);
+    }
+
     onSubmit({
-      type: 'HealthCheck',
+      type,
       description:  description !== '' ? description : undefined,
-      date:         date !== '' ? date : undefined,
+      date:         date ? formatDate(date) : undefined,
       specialist:   specialist !== '' ? specialist : undefined,
       diagnosisCodes: diagnosesCodes,
-      healthCheckRating
+      ...specific
     });
   };
 
   return (
     <div>
+      <EntryTypeSelect type={type} setType={setType}/>
       <form onSubmit={addEntry}>
         <Stack gap={2}>
-          <div>
-            <label>
-              Date
-              <input
-                type='date'
-                value={date}
-                onChange={ (event) => setDate(event.target.value) }
-              />
-            </label>
-          </div>
+          <DatePicker  sx={{ mt: 2 }} 
+            label="Date"
+            value={date}
+            onChange={(newValue) => setDate(newValue)}
+          />
           <TextField
             variant="standard"
             label="Description"
@@ -71,28 +138,35 @@ const AddEntryForm = ({ onCancel, onSubmit, diagnoses }: Props) => {
             value={specialist}
             onChange={({ target }) => setSpecialist(target.value)}
           />
-          <CodesAutoComplete
+          <DiagnosesCodesInput
             diagnoses={diagnoses.map(diagnosis => diagnosis.code)}
             codes={diagnosesCodes}
             setCodes={setDiagnosesCodes}
           />
-          <TextField 
-            variant="standard"
-            label='Healthcheck rating'
-            fullWidth
-            value={healthCheckRating}
-            onChange={({ target }) => setHealthCheckRating(Number(target.value))}
-            select
-          >
-            {healthCheckOptions.map(option =>
-              <MenuItem
-                key={option.label}
-                value={option.value}
-              >
-                {option.label}
-              </MenuItem>
-            )}
-          </TextField>
+          { (`${type}` === 'HealthCheck') &&
+            <HealthCheckRatingOptionsInput
+              healthCheckRating={healthCheckRating}
+              setHealthCheckRating={setHealthCheckRating}
+            />
+          }
+          { (`${type}` === 'Hospital') &&
+            <DischargeInput
+              date={dischargeDate}
+              criteria={dischargeCriteria}
+              setDate={setDischargeDate}
+              setCriteria={setDischargeCriteria}
+            />
+          }
+          { (`${type}` === 'OccupationalHealthcare') &&
+            <OccupationalHealthcareEntryInput
+              employerName={employerName}
+              setEmployerName={setEmployerName}
+              sickLeaveStartDate={sickLeaveStartDate}
+              setSickLeaveStartDate={setSickLeaveStartDate}
+              sickLeaveEndDate={sickLeaveEndDate}
+              setSickLeaveEndDate={setSickLeaveEndDate}
+            />
+          }
           <Grid>
             <Grid item>
               <Button

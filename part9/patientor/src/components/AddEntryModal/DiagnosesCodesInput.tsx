@@ -9,7 +9,7 @@ interface Props {
   setCodes: React.Dispatch<React.SetStateAction<Array<Diagnosis['code']>>>;
 }
 
-const CodesAutoComplete = ({ diagnoses, codes, setCodes }: Props) => {
+const DiagnosesCodesInput = ({ diagnoses, codes, setCodes }: Props) => {
   
   const handleChange = (
     _event: SyntheticEvent,
@@ -44,4 +44,4 @@ const CodesAutoComplete = ({ diagnoses, codes, setCodes }: Props) => {
   );
 };
 
-export default CodesAutoComplete;
+export default DiagnosesCodesInput;
