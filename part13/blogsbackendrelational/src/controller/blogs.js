@@ -1,5 +1,6 @@
 const router = require('express').Router();
 
+const { Sequelize } = require('sequelize');
 const { Blog } = require('../models');
 const { blogFinder } = require('../util/middleware');
 
@@ -9,13 +10,19 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  try {
-    const blog = await Blog.create(req.body);
-    res.json(blog);
-  } catch (error) {
-    res.status(400).json({ error });
-  }
+  const blog = await Blog.create(req.body);
+  res.json(blog);
 })
+
+router.put('/:id', blogFinder, async (req, res) => {
+  if (req.blog) {
+    req.blog.likes += 1;
+    const savedBlog = await req.blog.save();
+    res.status(201).json({ likes: savedBlog.likes });
+  } else {
+    throw new Sequelize.EmptyResultError('blog not found');
+  }
+});
 
 router.delete('/:id', blogFinder, async (req, res) => {
   if (req.blog) {
