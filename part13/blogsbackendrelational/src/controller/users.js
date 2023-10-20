@@ -1,0 +1,56 @@
+const router = require('express').Router();
+const bcrypt = require('bcrypt');
+const { User } = require('../models');
+const { Sequelize } = require('sequelize');
+
+// TODO
+// - do not return passwordHash
+router.get('/', async (req, res) => {
+  const users = await User.findAll();
+  res.json(users);
+});
+
+const encodePassword = async plainTextPassword => {
+  const saltRounds = 10;
+  return await bcrypt.hash(plainTextPassword, saltRounds);
+}
+
+router.post('/', async (req, res) => {
+  const body = req.body;
+  if (body.password) {
+    const encodedPassword = await encodePassword(body.password);
+
+    const user = await User.create({
+      ...body,
+      passwordHash: encodedPassword
+    });
+      
+    res.status(201).json(user);
+  } else {
+    res.status(400).json({ error: 'password is missing' });
+  }
+});
+
+// changes username
+router.put('/:username', async (req, res) => {
+  const newUsername = req.body.username;
+  const oldUsername = req.params.username;
+
+  if (!oldUsername) {
+    return res.status(400).send({ error: 'username is missing' });
+  }
+
+  const user = await User.findOne({
+    where: { username: oldUsername }
+  });
+
+  if (user) {
+    user.username = newUsername;
+    const savedUser = await user.save();
+    res.json(savedUser)
+  } else {
+    throw new Sequelize.EmptyResultError('user not found');
+  }
+});
+
+module.exports = router;

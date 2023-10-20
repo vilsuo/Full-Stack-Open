@@ -12,7 +12,9 @@ const errorHandler = async (error, req, res, next) => {
         error: error.errors.map(error => error.message).join('. ')
       });
     case 'SequelizeEmptyResultError':
-      return res.status(404).send({ error: error.message })
+      return res.status(404).send({ error: error.message });
+    case 'JsonWebTokenError':
+      return res.status(401).json({ error: error.message })
   }
   next(error);
 }
