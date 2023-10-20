@@ -12,11 +12,7 @@ router.get('/', async (req, res) => {
 // do not check that user exists? user id can also be found in the token
 router.post('/', tokenExtractor, async (req, res) => {
   const token = req.token;
-
-  console.log('token', token);
-
   const user = await User.findOne({ where: { username: token.username } });
-
   if (user) {
     const blog = await Blog.create({ ...req.body, userId: user.id });
     return res.json(blog);
@@ -38,12 +34,16 @@ router.put('/:id', blogFinder, async (req, res) => {
   }
 });
 
-router.delete('/:id', blogFinder, async (req, res) => {
-  const blog = reg.blog;
-  if (blog) {
+router.delete('/:id', tokenExtractor, blogFinder, async (req, res) => {
+  const blog = req.blog;
+  const token = req.token;
+
+  if (blog && blog.userId === token.id) {
     await blog.destroy();
+    return res.status(204).end();
+  } else {
+    return res.status(401).end();
   }
-  return res.status(204).end();
 });
 
 module.exports = router;
