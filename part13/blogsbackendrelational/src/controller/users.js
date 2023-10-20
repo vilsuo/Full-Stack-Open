@@ -2,6 +2,7 @@ const router = require('express').Router();
 const bcrypt = require('bcrypt');
 const { User } = require('../models');
 const { Sequelize } = require('sequelize');
+const { userParamsFinder } = require('../util/middleware');
 
 // TODO
 // - do not return passwordHash
@@ -32,18 +33,9 @@ router.post('/', async (req, res) => {
 });
 
 // changes username
-router.put('/:username', async (req, res) => {
+router.put('/:username', userParamsFinder, async (req, res) => {
   const newUsername = req.body.username;
-  const oldUsername = req.params.username;
-
-  if (!oldUsername) {
-    return res.status(400).send({ error: 'username is missing' });
-  }
-
-  const user = await User.findOne({
-    where: { username: oldUsername }
-  });
-
+  const user = req.user;
   if (user) {
     user.username = newUsername;
     const savedUser = await user.save();
