@@ -1,13 +1,19 @@
 const router = require('express').Router();
 const bcrypt = require('bcrypt');
-const { User } = require('../models');
+const { User, Blog } = require('../models');
 const { Sequelize } = require('sequelize');
 const { userParamsFinder } = require('../util/middleware');
 
 // TODO
 // - do not return passwordHash
 router.get('/', async (req, res) => {
-  const users = await User.findAll();
+  const users = await User.findAll({
+    attributes: { exclude: ['passwordHash'] },
+    include: {
+      model: Blog,
+      attributes: { exclude: ['userId'] }
+    }
+  });
   res.json(users);
 });
 
