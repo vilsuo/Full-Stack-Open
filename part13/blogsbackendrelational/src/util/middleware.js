@@ -1,7 +1,12 @@
 const { Blog, User } = require('../models');
+const jwt = require('jsonwebtoken');
+const { SECRET } = require('../util/config');
 
 const blogFinder = async (req, res, next) => {
-  req.blog = await Blog.findByPk(req.params.id);
+  const blog = await Blog.findByPk(req.params.id);
+  if (blog) {
+    req.blog = blog;
+  }
   next();
 };
 
@@ -32,6 +37,20 @@ const userParamsFinder  = async (req, res, next) => {
   next();
 };
 
+const tokenExtractor = async (req, res, next) => {
+  const authorization = req.header('Authorization');
+  if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+    const token = authorization.substring(7);
+    const decodedToken = jwt.verify(token, SECRET);
+    req.token = decodedToken;
+    
+  } else {
+    throw new jwt.JsonWebTokenError('token required');
+  }
+
+  next();
+};
+
 const errorHandler = async (error, req, res, next) => {
   switch (error.name) {
     case 'SequelizeValidationError':
@@ -50,5 +69,6 @@ module.exports = {
   blogFinder,
   userBodyFinder,
   userParamsFinder,
+  tokenExtractor,
   errorHandler
 };
