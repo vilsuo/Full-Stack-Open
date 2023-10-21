@@ -1,16 +1,28 @@
 const router = require('express').Router();
 
-const { Sequelize } = require('sequelize');
+const { Sequelize, Op } = require('sequelize');
 const { Blog , User} = require('../models');
+const { sequelize } = require('../util/db');
 const { blogFinder, tokenExtractor } = require('../util/middleware');
 
 router.get('/', async (req, res) => {
+  const where = {};
+
+  // case insensitive title substring search
+  if (req.query.search) {
+    where.title = sequelize.where(
+      sequelize.fn('lower', sequelize.col('title')),
+      { [Op.substring] : req.query.search.toLowerCase() }
+    );
+  }
+
   const blogs = await Blog.findAll({
     attributes: { exclude: ['userId'] },
     include: {
       model: User,
       attributes: ['id', 'name', 'username']
-    }
+    },
+    where
   });
   return res.json(blogs);
 });
