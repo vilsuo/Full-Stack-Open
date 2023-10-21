@@ -6,14 +6,22 @@ const { sequelize } = require('../util/db');
 const { blogFinder, tokenExtractor } = require('../util/middleware');
 
 router.get('/', async (req, res) => {
-  const where = {};
+  let where = {};
 
   // case insensitive title substring search
   if (req.query.search) {
-    where.title = sequelize.where(
-      sequelize.fn('lower', sequelize.col('title')),
-      { [Op.substring] : req.query.search.toLowerCase() }
-    );
+    where = {
+      [Op.or]: [
+        sequelize.where(
+          sequelize.fn('lower', sequelize.col('title')),
+          { [Op.substring] : req.query.search.toLowerCase() }
+        ),
+        sequelize.where(
+          sequelize.fn('lower', sequelize.col('author')),
+          { [Op.substring] : req.query.search.toLowerCase() }
+        )
+      ]
+    }
   }
 
   const blogs = await Blog.findAll({
