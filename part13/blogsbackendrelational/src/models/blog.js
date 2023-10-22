@@ -30,6 +30,22 @@ Blog.init({
   likes: {
     type: DataTypes.INTEGER,
     defaultValue: 0
+  },
+  year: {
+    type: DataTypes.INTEGER,
+    validate: {
+      yearValidator(value) {
+        const currentYear = new Date().getFullYear();
+        console.log('value', value, typeof value,);
+        console.log('currentYear', currentYear, typeof currentYear,);
+        if (currentYear < value) {
+          throw new Error(
+            'value cannot be greater than the current year'
+          );
+        }
+      },
+      min: 1991
+    }
   }
 }, {
   sequelize,

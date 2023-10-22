@@ -9,6 +9,9 @@ router.get('/', async (req, res) => {
       [sequelize.fn('COUNT', sequelize.col('title')), 'articles'],
       [sequelize.fn('SUM', sequelize.col('likes')), 'likes']
     ],
+    order: [
+      ['likes', 'DESC']
+    ],
     group: [['author']]
   });
 
@@ -16,4 +19,3 @@ router.get('/', async (req, res) => {
 });
 
 module.exports = router;
-
