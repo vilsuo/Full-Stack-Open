@@ -13,14 +13,7 @@ const blogFinder = async (req, res, next) => {
 const findByUsername = async username =>
   await User.findOne({ where: { username } });
 
-/**
- * Middleware for picking up the user from the request body username.
- * Inserts the User to the request param user
- * 
- * @param {*} req http request
- * @param {*} res http response
- * @param {*} next 
- */
+// does not check if user is disabled
 const userBodyFinder = async (req, res, next) => {
   const username = req.body.username;
   if (username) {
@@ -29,6 +22,7 @@ const userBodyFinder = async (req, res, next) => {
   next();
 };
 
+// does not check if user is disabled
 const userParamsFinder  = async (req, res, next) => {
   const username = req.params.username;
   if (username) {
@@ -37,19 +31,34 @@ const userParamsFinder  = async (req, res, next) => {
   next();
 };
 
-const tokenExtractor = async (req, res, next) => {
+const getToken = async req => {
   const authorization = req.header('Authorization');
   if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
     const token = authorization.substring(7);
     const decodedToken = jwt.verify(token, SECRET);
-    req.token = decodedToken;
-    
-  } else {
-    throw new jwt.JsonWebTokenError('token required');
+    return decodedToken;
   }
-
-  next();
 };
+
+const userExtractor = async (req, res, next) => {
+  const token = await getToken(req);
+  if (token) {
+    const user = await User.findOne({
+      where: { username: token.username }
+    });
+
+    if (!user) {
+      return res.status(404).send({ error: 'user not found' });
+    } else if (user.disabled) {
+      return res.status(401).send({ error: 'user is disabled' });
+    } else {
+      req.user = user;
+    }
+  } else {
+    return res.status(400).send({ error: 'token required' });
+  }
+  next();
+}
 
 const errorHandler = async (error, req, res, next) => {
   switch (error.name) {
@@ -57,8 +66,6 @@ const errorHandler = async (error, req, res, next) => {
       return res.status(400).send({
         error: error.errors.map(error => error.message).join('. ')
       });
-    case 'SequelizeEmptyResultError':
-      return res.status(404).send({ error: error.message });
     case 'JsonWebTokenError':
       return res.status(401).json({ error: error.message })
   }
@@ -69,6 +76,6 @@ module.exports = {
   blogFinder,
   userBodyFinder,
   userParamsFinder,
-  tokenExtractor,
+  userExtractor,
   errorHandler
 };

@@ -1,10 +1,8 @@
 const router = require('express').Router();
 const bcrypt = require('bcrypt');
 const { User, Blog } = require('../models');
-const { Sequelize } = require('sequelize');
 const { userParamsFinder } = require('../util/middleware');
 
-// do not return passwordHash
 router.get('/', async (req, res) => {
   const users = await User.findAll({
     attributes: { exclude: ['passwordHash'] },
@@ -16,6 +14,9 @@ router.get('/', async (req, res) => {
   res.json(users);
 });
 
+// TODO
+// - exclude passwordHash (already is?)
+// implement user finding with middleware?
 router.get('/:id', async (req, res) => {
   const id = req.params.id;
 
@@ -45,7 +46,7 @@ router.get('/:id', async (req, res) => {
       reading: user.reading
     });
   } else {
-    throw new Sequelize.EmptyResultError('user not found');
+    return res.status(404).send({ error: 'user not found' });
   }
 });
 
@@ -72,6 +73,8 @@ router.post('/', async (req, res) => {
 });
 
 // changes username
+// TODO
+// - implement with token
 router.put('/:username', userParamsFinder, async (req, res) => {
   const newUsername = req.body.username;
   const user = req.user;
@@ -80,7 +83,7 @@ router.put('/:username', userParamsFinder, async (req, res) => {
     const savedUser = await user.save();
     res.json(savedUser)
   } else {
-    throw new Sequelize.EmptyResultError('user not found');
+    return res.status(404).send({ error: 'user not found' });
   }
 });
 

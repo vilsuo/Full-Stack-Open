@@ -13,6 +13,10 @@ router.post('/', userBodyFinder, async (req, res) => {
 
   const user = req.user;
   if (user) {
+    if (user.disabled) {
+      return res.status(401).send({ error: 'user is disabled' });
+    }
+    
     const passwordCorrect = await bcrypt.compare(password, user.passwordHash);
     if (passwordCorrect) {
       const userForToken = {
@@ -25,7 +29,7 @@ router.post('/', userBodyFinder, async (req, res) => {
     }
   }
 
-  res.status(401).send({ error: 'invalid username or password' });
+  return res.status(401).send({ error: 'invalid username or password' });
 });
 
 module.exports = router;
