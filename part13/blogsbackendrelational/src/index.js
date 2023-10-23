@@ -8,7 +8,7 @@ const blogsRouter = require('./controller/blogs');
 const usersRouter = require('./controller/users');
 const loginRouter = require('./controller/login');
 const authorsRouter = require('./controller/authors');
-const readingListRouter = require('./controller/readinglist');
+const readingListsRouter = require('./controller/readinglists');
 
 const { connectToDatabase } = require('./util/db');
 const { errorHandler } = require('./util/middleware');
@@ -19,7 +19,7 @@ app.use('/api/blogs', blogsRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/login', loginRouter);
 app.use('/api/authors', authorsRouter);
-app.use('/api/readinglist', readingListRouter);
+app.use('/api/readinglists', readingListsRouter);
 
 app.use(errorHandler);
 
