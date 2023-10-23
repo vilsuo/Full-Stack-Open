@@ -4,8 +4,7 @@ const { User, Blog } = require('../models');
 const { Sequelize } = require('sequelize');
 const { userParamsFinder } = require('../util/middleware');
 
-// TODO
-// - do not return passwordHash
+// do not return passwordHash
 router.get('/', async (req, res) => {
   const users = await User.findAll({
     attributes: { exclude: ['passwordHash'] },
@@ -15,6 +14,33 @@ router.get('/', async (req, res) => {
     }
   });
   res.json(users);
+});
+
+router.get('/:id', async (req, res) => {
+  const id = req.params.id;
+
+  const user = await User.findByPk(id, {
+    include: [
+      {
+        model: Blog,
+        as: 'reading',
+        attributes: { exclude: ['userId'] },
+        through: {
+          attributes: []
+        },
+      },
+    ]
+  });
+
+  if (user) {
+    return res.json({
+      name: user.name,
+      username: user.username,
+      reading: user.reading
+    });
+  } else {
+    throw new Sequelize.EmptyResultError('user not found');
+  }
 });
 
 const encodePassword = async plainTextPassword => {
