@@ -1,62 +1,84 @@
-const { Blog, User } = require('../models');
-const jwt = require('jsonwebtoken');
+const { Blog, User, Session } = require('../models');
 const { SECRET } = require('../util/config');
+const jwt = require('jsonwebtoken');
 
 const blogFinder = async (req, res, next) => {
   const blog = await Blog.findByPk(req.params.id);
-  if (blog) {
-    req.blog = blog;
+  if (!blog) {
+    return res.status(404).send({ error: 'blog not found' });
   }
+  req.blog = blog;
+
   next();
 };
 
-const findByUsername = async username =>
-  await User.findOne({ where: { username } });
-
-// does not check if user is disabled
-const userBodyFinder = async (req, res, next) => {
-  const username = req.body.username;
-  if (username) {
-    req.user = await findByUsername(username);
-  }
-  next();
-};
-
-// does not check if user is disabled
-const userParamsFinder  = async (req, res, next) => {
-  const username = req.params.username;
-  if (username) {
-    req.user = await findByUsername(username);
-  }
-  next();
-};
-
-const getToken = async req => {
+/**
+ * Adds (non-decoded) token to request.
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
+const tokenExtractor = async (req, res, next) => {
   const authorization = req.header('Authorization');
-  if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
-    const token = authorization.substring(7);
-    const decodedToken = jwt.verify(token, SECRET);
-    return decodedToken;
+
+  if (!authorization || !authorization.toLowerCase().startsWith('bearer ')) {
+    return res.status(401).send({ error: 'token required' });
   }
+  req.token = authorization.substring(7);
+
+  next();
 };
 
-const userExtractor = async (req, res, next) => {
-  const token = await getToken(req);
-  if (token) {
-    const user = await User.findOne({
-      where: { username: token.username }
-    });
+/**
+ * Adds decoded token to the request. Expects tokenExtractor middleware to have
+ * been called.
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ * @returns 
+ */
+const decodedTokenExtractor = async (req, res, next) => {
+  const token = req.token;
+  if (!token) {
+    return res.status(401).send({ error: 'token required' });
+  }
 
-    if (!user) {
-      return res.status(404).send({ error: 'user not found' });
-    } else if (user.disabled) {
-      return res.status(401).send({ error: 'user is disabled' });
-    } else {
-      req.user = user;
-    }
-  } else {
+  const decodedToken = jwt.verify(token, SECRET);
+  const foundValid = await Session.findOne({ where: { token, valid: true }});
+  if (!decodedToken || !foundValid) {
+    return res.status(401).send({ error: 'token is invalid' });
+  }
+  req.decodedToken = decodedToken;
+
+  next();
+}
+
+/**
+ * Adds user to the request. User is picked from the decoded token.
+ * Expects decodedTokenExtractor middleware to have been called.
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ * @returns 
+ */
+const userExtractor = async (req, res, next) => {
+  const decodedToken = req.decodedToken;
+  if (!decodedToken) {
     return res.status(400).send({ error: 'token required' });
   }
+  
+  const user = await User.findOne({
+    where: { username: decodedToken.username }
+  });
+
+  if (!user) {
+    return res.status(404).send({ error: 'user not found' });
+  }
+  req.user = user;
+
   next();
 }
 
@@ -74,8 +96,8 @@ const errorHandler = async (error, req, res, next) => {
 
 module.exports = {
   blogFinder,
-  userBodyFinder,
-  userParamsFinder,
+  tokenExtractor,
+  decodedTokenExtractor,
   userExtractor,
   errorHandler
 };

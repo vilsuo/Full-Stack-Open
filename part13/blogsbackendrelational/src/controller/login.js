@@ -2,16 +2,16 @@ const router = require('express').Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { SECRET } = require('../util/config');
-const { userBodyFinder } = require('../util/middleware');
+const { User, Session } = require('../models');
 
-router.post('/', userBodyFinder, async (req, res) => {
+router.post('/', async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
-    res.status(400).send({ error: 'missing username or password'});
+    return res.status(400).send({ error: 'missing username or password'});
   }
 
-  const user = req.user;
+  const user = await User.findOne({ where: { username } });
   if (user) {
     if (user.disabled) {
       return res.status(401).send({ error: 'user is disabled' });
@@ -25,6 +25,9 @@ router.post('/', userBodyFinder, async (req, res) => {
       };
     
       const token = jwt.sign(userForToken, SECRET);
+
+      await Session.create({ token });
+
       return res.send({ token, username: user.username, name: user.name });
     }
   }

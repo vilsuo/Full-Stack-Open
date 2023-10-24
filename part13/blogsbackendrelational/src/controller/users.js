@@ -1,7 +1,6 @@
 const router = require('express').Router();
 const bcrypt = require('bcrypt');
 const { User, Blog } = require('../models');
-const { userParamsFinder } = require('../util/middleware');
 
 router.get('/', async (req, res) => {
   const users = await User.findAll({
@@ -11,12 +10,9 @@ router.get('/', async (req, res) => {
       attributes: { exclude: ['userId'] }
     }
   });
-  res.json(users);
+  return res.json(users);
 });
 
-// TODO
-// - exclude passwordHash (already is?)
-// implement user finding with middleware?
 router.get('/:id', async (req, res) => {
   const id = req.params.id;
 
@@ -65,19 +61,22 @@ router.post('/', async (req, res) => {
       passwordHash: encodedPassword
     });
     
-    res.status(201).json(user);
+    return res.status(201).json(user);
 
   } else {
-    res.status(400).json({ error: 'password is missing' });
+    return res.status(400).json({ error: 'password is missing' });
   }
 });
 
-// changes username
+// route to change username
+// - param is current username, body contains new username
+
 // TODO
-// - implement with token
-router.put('/:username', userParamsFinder, async (req, res) => {
+// - implement with token?
+router.put('/:username', async (req, res) => {
   const newUsername = req.body.username;
-  const user = req.user;
+  const oldUsername = req.params.username;
+  const user = await User.findOne({ where: { username: oldUsername } });
   if (user) {
     user.username = newUsername;
     const savedUser = await user.save();

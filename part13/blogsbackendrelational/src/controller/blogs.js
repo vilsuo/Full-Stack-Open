@@ -1,9 +1,8 @@
 const router = require('express').Router();
-
 const { Op } = require('sequelize');
 const { Blog , User} = require('../models');
 const { sequelize } = require('../util/db');
-const { blogFinder, userExtractor } = require('../util/middleware');
+const { blogFinder, tokenExtractor, decodedTokenExtractor, userExtractor } = require('../util/middleware');
 
 router.get('/', async (req, res) => {
   let where = {};
@@ -40,30 +39,25 @@ router.get('/', async (req, res) => {
 });
 
 // do not check that user exists? user id can also be found in the token
-router.post('/', userExtractor, async (req, res) => {
+router.post('/', tokenExtractor, decodedTokenExtractor, userExtractor, async (req, res) => {
   const user = req.user;
   const blog = await Blog.create({ ...req.body, userId: user.id });
   return res.json(blog);
 })
 
-// like a blog
+// route to like a blog
 // returns only the new likes
 router.put('/:id', blogFinder, async (req, res) => {
   const blog = req.blog
-  if (blog) {
-    blog.likes += 1;
-    const savedBlog = await blog.save();
-    return res.status(201).json({ likes: savedBlog.likes });
-  } else {
-    return res.status(404).send({ error: 'blog not found' });
-  }
+  blog.likes += 1;
+  const savedBlog = await blog.save();
+  return res.status(201).json({ likes: savedBlog.likes });
 });
 
-router.delete('/:id', blogFinder, userExtractor, async (req, res) => {
+router.delete('/:id', blogFinder, tokenExtractor, decodedTokenExtractor, userExtractor, async (req, res) => {
   const blog = req.blog;
   const user = req.user;
-
-  if (blog && blog.userId === user.id) {
+  if (blog.userId === user.id) {
     await blog.destroy();
     return res.status(204).end();
   } else {

@@ -1,6 +1,7 @@
 const Blog = require('./blog');
 const User = require('./user');
 const ReadingList = require('./readinglist');
+const Session = require('./session');
 
 // These calls will cause Sequelize to automatically add foreign keys to the
 // appropriate models (unless they are already present)
@@ -23,4 +24,5 @@ module.exports = {
   Blog,
   User,
   ReadingList,
+  Session,
 };
