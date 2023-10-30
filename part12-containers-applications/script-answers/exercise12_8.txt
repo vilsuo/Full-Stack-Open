@@ -1,0 +1,139 @@
+Script started on 2023-10-31 01:42:04+02:00 [TERM="xterm-256color" TTY="/dev/pts/6" COLUMNS="117" LINES="30"]
+[?2004h]0;vilsuo@DESKTOP-TJAM3HL: /mnt/d/pc/documents/fullstack/full-stack-open/part12-containers-applications/todo-app/todo-backend[01;32mvilsuo@DESKTOP-TJAM3HL[00m:[01;34m/mnt/d/pc/documents/fullstack/full-stack-open/part12-containers-applications/todo-app/todo-backend[00m$ docker pscompose --help[C[C[C[C[C[Ccat docker-compose.dev.yml [C[C[C[C[C[C[18Pdocker ps -a[7@images l[C[C[C[C[K -aps[K -acompose -f docker-compose.dev.yml down --volumes[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[Kdocker exer[Kc todo-backend-,[Kmongo-1 bash
+[?2004l[?2004h]0;vilsuo@DESKTOP-TJAM3HL: /mnt/d/pc/documents/fullstack/full-stack-open/part12-containers-applications/todo-app/todo-backend[01;32mvilsuo@DESKTOP-TJAM3HL[00m:[01;34m/mnt/d/pc/documents/fullstack/full-stack-open/part12-containers-applications/todo-app/todo-backend[00m$ docker exec todo-backend-mongo-1 bash[1@-[1@i[C[1@t[1@ [C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C
+[?2004l[?2004hroot@f21cf807594d:/# ls
+[?2004lbin   data  docker-entrypoint-initdb.d	home	    lib    lib64   media  opt	root  sbin  sys  usr
+boot  dev   etc				js-yaml.js  lib32  libx32  mnt	  proc	run   srv   tmp  var
+[?2004hroot@f21cf807594d:/# mongosh --help
+[?2004l
+  [1m$ mongosh [options] [db address] [file names (ending in .js or .mongodb)][0m
+
+  [1m[33mOptions:[0m
+
+    -h, --help                                 Show this usage information
+    -f, --file [arg]                           Load the specified mongosh script
+        --host [arg]                           Server to connect to
+        --port [arg]                           Port to connect to
+        --version                              Show version information
+        --quiet                                Silence output from the shell during the connection process
+        --shell                                Run the shell after executing files
+        --nodb                                 Don't connect to mongod on startup - no 'db address' [arg] expected
+        --norc                                 Will not run the '.mongoshrc.js' file on start up
+        --eval [arg]                           Evaluate javascript
+        --json[=canonical|relaxed]             Print result of --eval as Extended JSON, including errors
+        --retryWrites[=true|false]             Automatically retry write operations upon transient network errors (Default: true)
+
+  [1m[33mAuthentication Options:[0m
+
+    -u, --username [arg]                       Username for authentication
+    -p, --password [arg]                       Password for authentication
+        --authenticationDatabase [arg]         User source (defaults to dbname)
+        --authenticationMechanism [arg]        Authentication mechanism
+        --awsIamSessionToken [arg]             AWS IAM Temporary Session Token ID
+        --gssapiServiceName [arg]              Service name to use when authenticating using GSSAPI/Kerberos
+        --sspiHostnameCanonicalization [arg]   Specify the SSPI hostname canonicalization (none or forward, available on Windows)
+        --sspiRealmOverride [arg]              Specify the SSPI server realm (available on Windows)
+
+  [1m[33mTLS Options:[0m
+
+        --tls                                  Use TLS for all connections
+        --tlsCertificateKeyFile [arg]          PEM certificate/key file for TLS
+        --tlsCertificateKeyFilePassword [arg]  Password for key in PEM file for TLS
+        --tlsCAFile [arg]                      Certificate Authority file for TLS
+        --tlsAllowInvalidHostnames             Allow connections to servers with non-matching hostnames
+        --tlsAllowInvalidCertificates          Allow connections to servers with invalid certificates
+        --tlsCertificateSelector [arg]         TLS Certificate in system store (Windows and macOS only)
+        --tlsCRLFile [arg]                     Specifies the .pem file that contains the Certificate Revocation List
+        --tlsDisabledProtocols [arg]           Comma separated list of TLS protocols to disable [TLS1_0,TLS1_1,TLS1_2]
+        --tlsUseSystemCA                       Load the operating system trusted certificate list
+        --tlsFIPSMode                          Enable the system TLS library's FIPS mode
+
+  [1m[33mAPI version options:[0m
+
+        --apiVersion [arg]                     Specifies the API version to connect with
+        --apiStrict                            Use strict API version mode
+        --apiDeprecationErrors                 Fail deprecated commands for the specified API version
+
+  [1m[33mFLE Options:[0m
+
+        --awsAccessKeyId [arg]                 AWS Access Key for FLE Amazon KMS
+        --awsSecretAccessKey [arg]             AWS Secret Key for FLE Amazon KMS
+        --awsSessionToken [arg]                Optional AWS Session Token ID
+        --keyVaultNamespace [arg]              database.collection to store encrypted FLE parameters
+        --kmsURL [arg]                         Test parameter to override the URL of the KMS endpoint
+
+  [1m[33mDB Address Examples:[0m
+
+        foo                                    Foo database on local machine
+        192.168.0.5/foo                        Foo database on 192.168.0.5 machine
+        192.168.0.5:9999/foo                   Foo database on 192.168.0.5 machine on port 9999
+        mongodb://192.168.0.5:9999/foo         Connection string URI can also be used
+
+  [1m[33mFile Names:[0m
+
+        A list of files to run. Files must end in .js and will exit after unless --shell is specified.
+
+  [1m[33mExamples:[0m
+
+        Start mongosh using 'ships' database on specified connection string:
+        [1m[32m$ mongosh mongodb://192.168.0.5:9999/ships[0m
+
+  [1mFor more information on usage:[0m [1m[32mhttps://docs.mongodb.com/mongodb-shell[0m.
+[?2004hroot@f21cf807594d:/# [Kroot@f21cf807594d:/# [Kroot@f21cf807594d:/# mongosh -u the_username -p the_password
+[?2004l]0;mongosh mongodb://<credentials>@127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000Current Mongosh Log ID:	65403ff4751c0fa7682d15e8
+Connecting to:		[1m[32mmongodb://<credentials>@127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.0.1[0m
+Using MongoDB:		7.0.2
+[1m[33mUsing Mongosh[0m:		2.0.1
+
+For mongosh info see: [1mhttps://docs.mongodb.com/mongodb-shell/[0m
+
+
+To help improve our products, anonymous usage data is collected and sent to MongoDB periodically (https://www.mongodb.com/legal/privacy-policy).
+You can opt-out by running the [1mdisableTelemetry()[0m command.
+
+[1G[0J [1G[1m[33m------[0m
+   [1m[33mThe server generated these startup warnings when booting[0m
+   2023-10-30T20:49:21.675+00:00: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine. See http://dochub.mongodb.org/core/prodnotes-filesystem
+   2023-10-30T20:49:22.394+00:00: /sys/kernel/mm/transparent_hugepage/enabled is 'always'. We suggest setting it to 'never'
+   2023-10-30T20:49:22.394+00:00: vm.max_map_count is too low
+[1m[33m------[0m
+
+[1G[0Jtest> [7Gselect * fro[36mfrom[39m todos;
+Uncaught:
+[1m[31mSyntaxError[0m: Missing semicolon. (1:13)
+
+[0m[31m[1m>[22m[39m[90m 1 |[39m select [33m*[39m [36mfrom[39m todos[33m;[39m[0m
+[0m [90m   |[39m              [31m[1m^[22m[39m[0m
+[0m [90m 2 |[39m[0m
+
+[1G[0Jtest> [7Gshow dbs
+[1madmin[0m         100.00 KiB
+[1mconfig[0m         72.00 KiB
+[1mlocal[0m          72.00 KiB
+[1mthe_database[0m   56.00 KiB
+[1G[0Jtest> [7Guse the_database
+switched to db the_database
+[1G[0Jthe_database> [15Gshow collections
+[1mtodos[0m
+[1G[0Jthe_database> [15G[1G[0Jthe_database> show collections[31G[1G[0Jthe_database> use the_database[31G[1G[0Jthe_database> show dbs[23G[1G[0Jthe_database> select * [36mfrom[39m todos;[35G
+Uncaught:
+[1m[31mSyntaxError[0m: Missing semicolon. (1:13)
+
+[0m[31m[1m>[22m[39m[90m 1 |[39m select [33m*[39m [36mfrom[39m todos[33m;[39m[0m
+[0m [90m   |[39m              [31m[1m^[22m[39m[0m
+[0m [90m 2 |[39m[0m
+
+[1G[0Jthe_database> [15Gdb.todos.insertOne({ [32m"[39m[32mt[39m[32me[39m[32mx[39m[32mt[39m[32m"[39m: [32m"[39m[32mI[39m[32mn[39m[32mc[39m[32mr[39m[32me[39m[32ma[39m[32ms[39m[32me[39m [32mt[39m[32mh[39m[32me[39m [32mn[39m[32mu[39m[32mm[39m[32mb[39m[32me[39m[32mr[39m [32mo[39m[32mf[39m [32mt[39m[32mo[39m[32mo[39m[32ml[39m[32ms[39m [32mi[39m[32mn[39m [32mm[39m[32my[39m [32mt[39m[32mo[39m[32mo[39m[32ml[39m[32mb[39m[32me[39m[32ml[39m[32mt[39m[32m"[39m, [32m"[39m[32md[39m[32mo[39m[32mn[39m[32me[39m[32m"[39m: fals[33mfalse[39m}[1D[1G[0Jthe_database> db.todos.insertOne([44m{[49m [32m"text"[39m: [32m"Increase the number of tools in my toolbelt"[39m, [32m"done"[39m: [33mfalse[39m}[104G[1G[0Jthe_database> db.todos.insertOne([44m{[49m [32m"text"[39m: [32m"Increase the number of tools in my toolbelt"[39m, [32m"done"[39m: [33mfalse[39m }[105G[1C[1G[0Jthe_database> db.todos.insertOne({ [32m"text"[39m: [32m"Increase the number of tools in my toolbelt"[39m, [32m"done"[39m: [33mfalse[39m }[106G)
+{
+  acknowledged: [33mtrue[39m,
+  insertedId: ObjectId("6540414f751c0fa7682d15e9")
+}
+[1G[0Jthe_database> [15Gqui[1G[0Jthe_database> qu[17G[1G[0Jthe_database> q[16G[1G[0Jthe_database> [15G
+(To exit, press Ctrl+C again or Ctrl+D or type .exit)
+[1G[0Jthe_database> [15G
+[?2004hroot@f21cf807594d:/# exit
+[?2004lexit
+[?2004h]0;vilsuo@DESKTOP-TJAM3HL: /mnt/d/pc/documents/fullstack/full-stack-open/part12-containers-applications/todo-app/todo-backend[01;32mvilsuo@DESKTOP-TJAM3HL[00m:[01;34m/mnt/d/pc/documents/fullstack/full-stack-open/part12-containers-applications/todo-app/todo-backend[00m$ exit
+[?2004lexit
+
+Script done on 2023-10-31 01:52:42+02:00 [COMMAND_EXIT_CODE="0"]
