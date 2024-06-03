@@ -4,4 +4,6 @@ requests/
 
 coverage/
 
+sandbox/
+
 .env
