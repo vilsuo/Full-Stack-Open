@@ -37,7 +37,7 @@ const Authors = (props) => {
       </table>
 
       <div>
-        <EditAuthor />
+        <EditAuthor authors={authors} />
       </div>
     </div>
   )
