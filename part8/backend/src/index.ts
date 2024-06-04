@@ -1,6 +1,8 @@
 import { ApolloServer } from '@apollo/server';
 import { startStandaloneServer } from '@apollo/server/standalone';
+import { GraphQLError } from 'graphql';
 
+import mongoose from 'mongoose';
 import { connectToDatabase } from './mongo';
 import Book from './models/book';
 import Author from './models/author';
@@ -39,6 +41,16 @@ const typeDefs = `
   }
 `
 
+const getErrors = (error: mongoose.Error.ValidationError) => {
+  const errors = {};
+
+  Object.keys(error.errors).forEach((key) => {
+    errors[key] = error.errors[key].message;
+  });
+
+  return errors;
+};
+
 const resolvers = {
   Query: {
     bookCount: async () => Book.collection.countDocuments(),
@@ -68,22 +80,48 @@ const resolvers = {
   },
   Mutation: {
     addBook: async (root, args) => {
-      let author = await Author.findOne({ name: args.author })
-      if (!author) {
-        author = new Author({ name: args.author })
-        await author.save();
-      }
+      let author = await Author.findOne({ name: args.author });
+      try {
+        if (!author) {
+          author = new Author({ name: args.author })
+          await author.save();
+        }
 
-      const newBook = new Book({ ...args, author });
-      return await newBook.save();
+        const newBook = new Book({ ...args, author });
+        return await newBook.save();
+      } catch (error: unknown) {
+        if (error instanceof mongoose.Error.ValidationError) {
+          throw new GraphQLError("Adding book failed", {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invalidArgs: getErrors(error),
+            },
+          });
+        }
+        throw error;
+      }
     },
     editAuthor: async (root, args) => {
       const { name, setBornTo } = args;
-      const author = await Author.findOne({ name });
-      if (!author) { return null; }
-    
-      author.born = setBornTo;
-      return await author.save();
+
+      try {
+        const author = await Author.findOneAndUpdate({ name }, { born: setBornTo }, {
+          new: true, // return the modified document rather than the original
+          runValidators: true, // update validators are off by default
+        });
+
+        return author;
+      } catch (error: unknown) {
+        if (error instanceof mongoose.Error.ValidationError) {
+          throw new GraphQLError("Editing author failed", {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invalidArgs: getErrors(error),
+            },
+          });
+        }
+        throw error;
+      }
     }
   },
   Author: {
