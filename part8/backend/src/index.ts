@@ -2,10 +2,13 @@ import { ApolloServer } from '@apollo/server';
 import { startStandaloneServer } from '@apollo/server/standalone';
 import { GraphQLError } from 'graphql';
 
+import jwt from 'jsonwebtoken';
+
 import mongoose from 'mongoose';
 import { connectToDatabase } from './mongo';
 import Book from './models/book';
 import Author from './models/author';
+import User from './models/user';
 
 const typeDefs = `
   type Author {
@@ -23,11 +26,23 @@ const typeDefs = `
     genres: [String!]!
   }
 
+  type User {
+    username: String!
+    favoriteGenre: String!
+    id: ID!
+  }
+  
+  type Token {
+    value: String!
+  }
+
   type Query {
     bookCount: Int!
     authorCount: Int!
     allBooks(author: String, genre: String): [Book!]!
     allAuthors: [Author!]!
+    allUsers: [User!]!
+    me: User
   }
 
   type Mutation {
@@ -38,6 +53,14 @@ const typeDefs = `
       genres: [String!]!
     ): Book!
     editAuthor(name: String!, setBornTo: Int!): Author
+    createUser(
+      username: String!
+      favoriteGenre: String!
+    ): User
+    login(
+      username: String!
+      password: String!
+    ): Token
   }
 `
 
@@ -77,6 +100,7 @@ const resolvers = {
       return await Book.find(bookFilter);
     },
     allAuthors: async () => Author.find({}),
+    allUsers: async () => User.find({}),
   },
   Mutation: {
     addBook: async (root, args) => {
@@ -122,7 +146,45 @@ const resolvers = {
         }
         throw error;
       }
-    }
+    },
+
+    createUser: async (root, args) => {
+      const { username, favoriteGenre } = args;
+
+      const user = new User({ username, favoriteGenre });
+      try {
+        return await user.save();
+
+      } catch (error: unknown) {
+        if (error instanceof mongoose.Error.ValidationError) {
+          throw new GraphQLError("Creating user failed", {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invalidArgs: getErrors(error),
+            },
+          });
+        }
+        throw error;
+      }
+    },
+    login: async (root, args) => {
+      const { username, password } = args;
+      const user = await User.findOne({ username });
+      if (!user || password !== 'secret') {
+        throw new GraphQLError("Invalid username or password", {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+          }
+        })
+      }
+
+      const token = jwt.sign(
+        { id: user._id, username: user.username, },
+        process.env.JWT_SECRET
+      );
+
+      return { value: token };
+    },
   },
   Author: {
     bookCount: async (root) => Book.countDocuments({ author: root._id }),
