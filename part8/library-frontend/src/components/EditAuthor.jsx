@@ -1,12 +1,13 @@
 import { useMutation } from "@apollo/client";
-import { EDIT_AUTHOR } from "../queries";
+import { ALL_AUTHORS, EDIT_AUTHOR } from "../queries";
 import { useState } from "react";
 
 const EditAuthor = ({ authors }) => {
-  const [name, setName] = useState(authors[0].name);
+  const [name, setName] = useState(undefined);
   const [born, setBorn] = useState("");
 
   const [editAuthor] = useMutation(EDIT_AUTHOR, {
+    refetchQueries: [{ query: ALL_AUTHORS }],
     onCompleted: (data) => {
       if (data && data.editAuthor === null) {
         console.log('Author not found');
@@ -16,7 +17,7 @@ const EditAuthor = ({ authors }) => {
     },
     onError: (error) => {
       console.log('Error updating author', error)
-    }
+    },
   });
 
   const handleSubmit = async (event) => {
@@ -35,6 +36,8 @@ const EditAuthor = ({ authors }) => {
             value={name}
             onChange={({ target }) => { setName(target.value); } }
           >
+            <option disabled selected value>-- select an option--</option>
+            
             {authors.map(a =>
               <option key={a.id} value={a.name}>
                 {a.name}
