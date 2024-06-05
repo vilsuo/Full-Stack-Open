@@ -19,6 +19,7 @@ query {
     author {
       name
     }
+    genres
     id
   }
 }
