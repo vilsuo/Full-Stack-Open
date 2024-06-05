@@ -119,6 +119,7 @@ const resolvers = {
 
         const newBook = new Book({ ...args, author });
         return await newBook.save();
+
       } catch (error: unknown) {
         if (error instanceof mongoose.Error.ValidationError) {
           throw new GraphQLError("Adding book failed", {
@@ -147,6 +148,7 @@ const resolvers = {
         });
 
         return author;
+
       } catch (error: unknown) {
         if (error instanceof mongoose.Error.ValidationError) {
           throw new GraphQLError("Editing author failed", {
@@ -219,7 +221,7 @@ const start = async () => {
     context: async ({ req, res }) => {
       const auth = req ? req.headers.authorization : null
       if (auth && auth.startsWith('Bearer ')) {
-        const decodedToken = jwt.verify(
+        const decodedToken: any = jwt.verify(
           auth.substring(7), process.env.JWT_SECRET
         );
         const currentUser = await User.findById(decodedToken.id)
