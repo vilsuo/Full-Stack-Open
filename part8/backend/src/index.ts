@@ -100,7 +100,10 @@ const resolvers = {
       return await Book.find(bookFilter);
     },
     allAuthors: async () => Author.find({}),
-    allUsers: async () => User.find({}),
+    allUsers: async () => await User.find({}),
+    me: async (root, args, { currentUser }) => {
+      return currentUser;
+    },
   },
   Mutation: {
     addBook: async (root, args, { currentUser }) => {
@@ -193,7 +196,7 @@ const resolvers = {
       }
 
       const token = jwt.sign(
-        { id: user._id, username: user.username, },
+        { id: user._id, username: user.username },
         process.env.JWT_SECRET
       );
 
