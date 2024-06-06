@@ -3,7 +3,7 @@ import { ALL_AUTHORS, EDIT_AUTHOR } from "../queries";
 import { useState } from "react";
 
 const EditAuthor = ({ authors }) => {
-  const [name, setName] = useState(undefined);
+  const [name, setName] = useState("");
   const [born, setBorn] = useState("");
 
   const [editAuthor] = useMutation(EDIT_AUTHOR, {
@@ -36,7 +36,7 @@ const EditAuthor = ({ authors }) => {
             value={name}
             onChange={({ target }) => { setName(target.value); } }
           >
-            <option disabled selected value>-- select an option--</option>
+            <option disabled value="">-- select an option--</option>
             
             {authors.map(a =>
               <option key={a.id} value={a.name}>
