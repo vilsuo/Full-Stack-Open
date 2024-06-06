@@ -4,16 +4,17 @@ import Books from "./components/Books";
 import NewBook from "./components/NewBook";
 import Login from "./components/Login";
 import { useApolloClient } from "@apollo/client";
+import Recommend from "./components/Recommend";
 
 const App = () => {
   const [page, setPage] = useState("authors");
-  const [token, setToken] = useState("");
+  const [user, setUser] = useState();
   const client = useApolloClient();
 
   const handleLogout = async () => {
     showPlank();
+    setUser();
 
-    setToken("");
     localStorage.clear();
     await client.clearStore();
   };
@@ -25,20 +26,25 @@ const App = () => {
       <div>
         <button onClick={() => setPage("authors")}>authors</button>
         <button onClick={() => setPage("books")}>books</button>
-        { token && <button onClick={() => setPage("add")}>add book</button> }
-        { !token
+        { user && (<>
+          <button onClick={() => setPage("add")}>add book</button>
+          <button onClick={() => setPage("recommend")}>recommend</button>
+        </>)}
+        { !user
           ? <button onClick={() => setPage("login")}>login</button>
           : <button onClick={handleLogout}>logout</button>
         }
       </div>
 
-      <Authors show={page === "authors"} showEdit={!!token} />
+      <Authors show={page === "authors"} showEdit={!!user} />
 
       <Books show={page === "books"} />
 
       <NewBook show={page === "add"} />
 
-      <Login show={page === "login"} setToken={setToken} redirect={showPlank} />
+      <Recommend show={page === "recommend"} genre={user ? user.favoriteGenre : undefined} />
+
+      <Login show={page === "login"} setUser={setUser} redirect={showPlank} />
     </div>
   );
 };

@@ -1,19 +1,23 @@
-import { useMutation } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import { useState } from "react";
-import { LOGIN } from "../queries";
+import { LOGIN, ME } from "../queries";
 
-const Login = ({ show, setToken, redirect }) => {
+const Login = ({ show, setUser, redirect }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const [login, result] = useMutation(LOGIN, {
+  const [me] = useLazyQuery(ME);
+
+  const [login] = useMutation(LOGIN, {
     onError: (error) => {
       console.log('Error logging in handler', error);
     },
-    onCompleted: (data) => {
+    onCompleted: async (data) => {
       const newToken = data.login.value;
-      setToken(newToken);
       localStorage.setItem('part8-token', newToken);
+
+      const meResult = await me();
+      setUser(meResult.data.me);
 
       setUsername("");
       setPassword("");
