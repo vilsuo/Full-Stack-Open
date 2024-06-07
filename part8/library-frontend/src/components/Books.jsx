@@ -5,11 +5,13 @@ import { useEffect, useState } from "react";
 const NO_FILTER = "";
 
 const Books = (props) => {
-  const result = useQuery(ALL_BOOKS);
-  const [allBooks, { loading, data }] = useLazyQuery(ALL_BOOKS);
-
   const [genres, setGenres] = useState([]);
   const [filter, setFilter] = useState(NO_FILTER);
+  
+  const result = useQuery(ALL_BOOKS);
+  const [booksByFilter, { loading, data }] = useLazyQuery(ALL_BOOKS, {
+    variables: { genre: filter },
+  });
 
   // find all genres
   useEffect(() => {
@@ -34,11 +36,11 @@ const Books = (props) => {
   }, [result.data])
 
   useEffect(() => {
-    allBooks({ variables: { genre: filter } })
-  },[filter])
+    booksByFilter();
+  },[result.data, filter])
 
   if (!props.show) {
-    return null
+    return null;
   }
 
   if (result.loading || loading) {

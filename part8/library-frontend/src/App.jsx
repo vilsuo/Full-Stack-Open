@@ -21,6 +21,8 @@ const App = () => {
 
   const showPlank = () => setPage("");
 
+  const genre = user ? user.favoriteGenre : undefined;
+
   return (
     <div>
       <div>
@@ -40,9 +42,9 @@ const App = () => {
 
       <Books show={page === "books"} />
 
-      <NewBook show={page === "add"} />
+      <NewBook show={page === "add"} genre={genre} />
 
-      <Recommend show={page === "recommend"} genre={user ? user.favoriteGenre : undefined} />
+      <Recommend show={page === "recommend"} genre={genre} />
 
       <Login show={page === "login"} setUser={setUser} redirect={showPlank} />
     </div>

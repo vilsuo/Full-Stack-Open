@@ -10,7 +10,11 @@ const NewBook = (props) => {
   const [genres, setGenres] = useState([])
 
   const [addBook, result] = useMutation(ADD_BOOK, {
-    refetchQueries: [{ query: ALL_AUTHORS }, { query: ALL_BOOKS }],
+    refetchQueries: [
+      { query: ALL_AUTHORS },
+      { query: ALL_BOOKS }
+    ],
+    
     onCompleted: () => {
       setTitle('')
       setPublished('')
@@ -19,8 +23,14 @@ const NewBook = (props) => {
       setGenre('')
     },
     onError: (error) => {
-      console.log('On error handler', error);
-    }
+      console.log('NewBook error', error.message);
+    },
+    update: (cache, { data:{ addBook } }) => {
+      const gs = [ ...addBook.genres, "" ];
+      for (const i in gs) {
+        cache.evict({ fieldName: 'allBooks', args: { genre: gs[i] } })
+      }
+    },
   })
 
   if (!props.show) {

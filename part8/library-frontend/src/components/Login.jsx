@@ -6,22 +6,23 @@ const Login = ({ show, setUser, redirect }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const [me] = useLazyQuery(ME);
+  const [me] = useLazyQuery(ME, {
+    onCompleted: (data) => {
+      setUser(data.me);
+      setUsername("");
+      setPassword("");
+      redirect();
+    },
+  });
 
   const [login] = useMutation(LOGIN, {
     onError: (error) => {
-      console.log('Error logging in handler', error);
+      console.log('Login error', error);
     },
     onCompleted: async (data) => {
       const newToken = data.login.value;
       localStorage.setItem('part8-token', newToken);
-
-      const meResult = await me();
-      setUser(meResult.data.me);
-
-      setUsername("");
-      setPassword("");
-      redirect();
+      await me();
     }
   });
 

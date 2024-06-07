@@ -23,6 +23,7 @@ query(
     title
     published
     author {
+      id
       name
     }
     genres
